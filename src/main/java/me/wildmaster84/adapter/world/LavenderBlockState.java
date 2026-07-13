@@ -47,6 +47,7 @@ public class LavenderBlockState implements org.bukkit.block.BlockState {
 
     @Override
     public Material getType() {
+        if (!instance.isChunkLoaded(x >> 4, z >> 4)) return Material.AIR;
         Block msBlock = instance.getBlock(x, y, z);
         if (msBlock == null) return Material.AIR;
         String name = msBlock.name();
@@ -57,6 +58,7 @@ public class LavenderBlockState implements org.bukkit.block.BlockState {
 
     @Override
     public void setType(Material type) {
+        if (!instance.isChunkLoaded(x >> 4, z >> 4)) return;
         String key = "minecraft:" + type.name().toLowerCase();
         try {
             Block msBlock = Block.fromKey(key);

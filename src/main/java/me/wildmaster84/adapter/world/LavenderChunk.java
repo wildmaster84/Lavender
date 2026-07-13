@@ -82,6 +82,7 @@ public class LavenderChunk implements org.bukkit.Chunk {
 
     @Override
     public boolean load() {
+        if (instance.isChunkLoaded(x, z)) return true;
         try {
             CompletableFuture<Chunk> future = instance.loadChunk(x, z);
             future.get();
@@ -94,6 +95,7 @@ public class LavenderChunk implements org.bukkit.Chunk {
 
     @Override
     public boolean load(boolean generate) {
+        if (instance.isChunkLoaded(x, z)) return true;
         if (generate) {
             try {
                 CompletableFuture<Chunk> future = instance.loadOptionalChunk(x, z);

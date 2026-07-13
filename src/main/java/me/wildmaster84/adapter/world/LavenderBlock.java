@@ -20,14 +20,8 @@ public class LavenderBlock implements org.bukkit.block.Block {
         this.z = z;
     }
 
-    private void ensureChunkLoaded() {
-        int chunkX = x >> 4;
-        int chunkZ = z >> 4;
-        if (!instance.isChunkLoaded(chunkX, chunkZ)) {
-            try {
-                instance.loadChunk(chunkX, chunkZ).join();
-            } catch (Exception e) {}
-        }
+    private boolean isChunkLoaded() {
+        return instance.isChunkLoaded(x >> 4, z >> 4);
     }
 
     @Override
@@ -45,7 +39,7 @@ public class LavenderBlock implements org.bukkit.block.Block {
 
     @Override
     public Material getType() {
-        ensureChunkLoaded();
+        if (!isChunkLoaded()) return Material.AIR;
         Block msBlock = instance.getBlock(x, y, z);
         if (msBlock == null) return Material.AIR;
         String name = msBlock.name();
@@ -61,6 +55,7 @@ public class LavenderBlock implements org.bukkit.block.Block {
 
     @Override
     public void setType(Material type, boolean applyPhysics) {
+        if (!isChunkLoaded()) return;
         String key = "minecraft:" + type.name().toLowerCase();
         try {
             Block msBlock = Block.fromKey(key);
@@ -104,7 +99,7 @@ public class LavenderBlock implements org.bukkit.block.Block {
 
     @Override
     public boolean isLiquid() {
-        ensureChunkLoaded();
+        if (!isChunkLoaded()) return false;
         Block msBlock = instance.getBlock(x, y, z);
         if (msBlock == null) return false;
         String name = msBlock.name();
@@ -113,14 +108,14 @@ public class LavenderBlock implements org.bukkit.block.Block {
 
     @Override
     public boolean isEmpty() {
-        ensureChunkLoaded();
+        if (!isChunkLoaded()) return true;
         Block msBlock = instance.getBlock(x, y, z);
         return msBlock == null || msBlock.isAir();
     }
 
     @Override
     public boolean isSolid() {
-        ensureChunkLoaded();
+        if (!isChunkLoaded()) return false;
         Block msBlock = instance.getBlock(x, y, z);
         if (msBlock == null || msBlock.isAir()) return false;
         return msBlock.registry().isSolid();

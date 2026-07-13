@@ -296,6 +296,7 @@ public class LavenderWorld implements World {
 
     @Override
     public int getHighestBlockAt(int x, int z) {
+        if (!instance.isChunkLoaded(x >> 4, z >> 4)) return -64;
         for (int y = getMaxHeight() - 1; y >= -64; y--) {
             Block block = instance.getBlock(x, y, z);
             if (block != null && !block.isAir() && !block.isLiquid()) {

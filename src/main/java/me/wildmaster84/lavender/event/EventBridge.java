@@ -7,6 +7,8 @@ import me.wildmaster84.adapter.server.LavenderServer;
 import me.wildmaster84.adapter.world.LavenderWorld;
 import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.instance.Instance;
+import net.minestom.server.instance.Chunk;
 import net.minestom.server.entity.GameMode;
 import net.minestom.server.event.inventory.InventoryCloseEvent;
 import net.minestom.server.event.inventory.InventoryPreClickEvent;
@@ -159,9 +161,24 @@ public class EventBridge {
                     double[] pos = playerData.getPosition(msPlayer.getUuid());
                     if (pos != null) {
                         Location loc = new Location(world, pos[0], pos[1], pos[2], (float) pos[3], (float) pos[4]);
-                        MinecraftServer.getSchedulerManager().scheduleNextTick(() -> {
-                            bukkitPlayer.teleportAsync(loc);
-                        });
+                        Instance targetInstance = world.getInstance();
+                        int chunkX = (int) Math.floor(pos[0] / 16);
+                        int chunkZ = (int) Math.floor(pos[2] / 16);
+                        java.util.List<java.util.concurrent.CompletableFuture<Chunk>> futures = new java.util.ArrayList<>();
+                        for (int dx = -1; dx <= 1; dx++) {
+                            for (int dz = -1; dz <= 1; dz++) {
+                                if (!targetInstance.isChunkLoaded(chunkX + dx, chunkZ + dz)) {
+                                    futures.add(targetInstance.loadChunk(chunkX + dx, chunkZ + dz));
+                                }
+                            }
+                        }
+                        if (futures.isEmpty()) {
+                            MinecraftServer.getSchedulerManager().scheduleNextTick(() -> bukkitPlayer.teleportAsync(loc));
+                        } else {
+                            java.util.concurrent.CompletableFuture.allOf(futures.toArray(new java.util.concurrent.CompletableFuture[0])).thenRun(() -> {
+                                MinecraftServer.getSchedulerManager().scheduleNextTick(() -> bukkitPlayer.teleportAsync(loc));
+                            });
+                        }
                     }
                 }
             }
