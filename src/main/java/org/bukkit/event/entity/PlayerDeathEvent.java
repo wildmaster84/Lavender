@@ -5,6 +5,7 @@ import java.util.List;
 import org.bukkit.inventory.ItemStack;
 
 public class PlayerDeathEvent extends EntityEvent {
+    private static final org.bukkit.event.HandlerList HANDLER_LIST = new org.bukkit.event.HandlerList();
     public PlayerDeathEvent(Player player, List<ItemStack> drops, int droppedExp, String deathMessage) { super(player); }
     public PlayerDeathEvent(Player player, List<ItemStack> drops, int droppedExp, String deathMessage, boolean keepInventory) { super(player); }
     public List<ItemStack> getDrops() { return new java.util.ArrayList<>(); }
@@ -22,6 +23,6 @@ public class PlayerDeathEvent extends EntityEvent {
     public void setNewLevel(int level) {}
     public int getNewTotalExp() { return 0; }
     public void setNewTotalExp(int totalExp) {}
-    @Override public org.bukkit.event.HandlerList getHandlers() { return new org.bukkit.event.HandlerList(); }
-    public static org.bukkit.event.HandlerList getHandlerList() { return new org.bukkit.event.HandlerList(); }
+    @Override public org.bukkit.event.HandlerList getHandlers() { return HANDLER_LIST; }
+    public static org.bukkit.event.HandlerList getHandlerList() { return HANDLER_LIST; }
 }

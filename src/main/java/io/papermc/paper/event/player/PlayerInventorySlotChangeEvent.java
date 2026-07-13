@@ -5,6 +5,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 
 public class PlayerInventorySlotChangeEvent extends org.bukkit.event.player.PlayerEvent {
+    private static final org.bukkit.event.HandlerList HANDLER_LIST = new org.bukkit.event.HandlerList();
     private final int slot;
     private final ItemStack oldItem;
     private final ItemStack newItem;
@@ -17,6 +18,6 @@ public class PlayerInventorySlotChangeEvent extends org.bukkit.event.player.Play
     public int getSlot() { return slot; }
     public ItemStack getOldItem() { return oldItem; }
     public ItemStack getNewItem() { return newItem; }
-    @Override public HandlerList getHandlers() { return new HandlerList(); }
-    public static HandlerList getHandlerList() { return new HandlerList(); }
+    @Override public HandlerList getHandlers() { return HANDLER_LIST; }
+    public static HandlerList getHandlerList() { return HANDLER_LIST; }
 }

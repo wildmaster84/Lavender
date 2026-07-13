@@ -6,6 +6,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.InventoryView;
 
 public class InventoryClickEvent extends InventoryEvent implements org.bukkit.event.Cancellable {
+    private static final org.bukkit.event.HandlerList HANDLER_LIST = new org.bukkit.event.HandlerList();
     private Inventory clickedInventory;
     private InventoryView view;
     private InventoryAction action;
@@ -57,6 +58,6 @@ public class InventoryClickEvent extends InventoryEvent implements org.bukkit.ev
     public boolean isShiftClick() { return clickType != null && clickType.isShiftClick(); }
     @Override public boolean isCancelled() { return cancelled; }
     @Override public void setCancelled(boolean cancel) { this.cancelled = cancel; }
-    @Override public org.bukkit.event.HandlerList getHandlers() { return new org.bukkit.event.HandlerList(); }
-    public static org.bukkit.event.HandlerList getHandlerList() { return new org.bukkit.event.HandlerList(); }
+    @Override public org.bukkit.event.HandlerList getHandlers() { return HANDLER_LIST; }
+    public static org.bukkit.event.HandlerList getHandlerList() { return HANDLER_LIST; }
 }

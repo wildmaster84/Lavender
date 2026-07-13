@@ -5,6 +5,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class PlayerChunkLoadEvent extends Event {
+    private static final org.bukkit.event.HandlerList HANDLER_LIST = new org.bukkit.event.HandlerList();
     private final Player player;
     private final int chunkX;
     private final int chunkZ;
@@ -16,6 +17,6 @@ public class PlayerChunkLoadEvent extends Event {
     public Player getPlayer() { return player; }
     public int getChunkX() { return chunkX; }
     public int getChunkZ() { return chunkZ; }
-    @Override public HandlerList getHandlers() { return new HandlerList(); }
-    public static HandlerList getHandlerList() { return new HandlerList(); }
+    @Override public HandlerList getHandlers() { return HANDLER_LIST; }
+    public static HandlerList getHandlerList() { return HANDLER_LIST; }
 }

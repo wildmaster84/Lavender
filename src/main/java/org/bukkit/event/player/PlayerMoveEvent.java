@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.event.Cancellable;
 
 public class PlayerMoveEvent extends PlayerEvent implements Cancellable {
+    private static final org.bukkit.event.HandlerList HANDLER_LIST = new org.bukkit.event.HandlerList();
     private boolean cancelled = false;
     private Location from;
     private Location to;
@@ -16,6 +17,6 @@ public class PlayerMoveEvent extends PlayerEvent implements Cancellable {
     @Override public boolean isCancelled() { return cancelled; }
     @Override public void setCancelled(boolean cancel) { this.cancelled = cancel; }
     @Override
-    public org.bukkit.event.HandlerList getHandlers() { return new org.bukkit.event.HandlerList(); }
-    public static org.bukkit.event.HandlerList getHandlerList() { return new org.bukkit.event.HandlerList(); }
+    public org.bukkit.event.HandlerList getHandlers() { return HANDLER_LIST; }
+    public static org.bukkit.event.HandlerList getHandlerList() { return HANDLER_LIST; }
 }

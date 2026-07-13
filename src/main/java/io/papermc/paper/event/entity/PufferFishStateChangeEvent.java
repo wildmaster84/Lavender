@@ -5,6 +5,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 public class PufferFishStateChangeEvent extends Event {
+    private static final org.bukkit.event.HandlerList HANDLER_LIST = new org.bukkit.event.HandlerList();
     private final Entity entity;
     private final int newPuffState;
     private final int oldPuffState;
@@ -16,6 +17,6 @@ public class PufferFishStateChangeEvent extends Event {
     public Entity getEntity() { return entity; }
     public int getNewPuffState() { return newPuffState; }
     public int getOldPuffState() { return oldPuffState; }
-    @Override public HandlerList getHandlers() { return new HandlerList(); }
-    public static HandlerList getHandlerList() { return new HandlerList(); }
+    @Override public HandlerList getHandlers() { return HANDLER_LIST; }
+    public static HandlerList getHandlerList() { return HANDLER_LIST; }
 }

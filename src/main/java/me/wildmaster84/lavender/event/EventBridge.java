@@ -336,6 +336,7 @@ public class EventBridge {
                 }
                 org.bukkit.event.inventory.InventoryCloseEvent closeEvent = new org.bukkit.event.inventory.InventoryCloseEvent(topInv, bukkitPlayer);
                 server.getPluginManager().callEvent(closeEvent);
+                LavenderInventory.unregister(inv);
             }
         });
     }

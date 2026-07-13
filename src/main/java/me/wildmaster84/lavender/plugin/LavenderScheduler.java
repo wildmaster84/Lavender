@@ -56,7 +56,18 @@ public class LavenderScheduler implements BukkitScheduler {
     }
 
     private BukkitTask scheduleSync(Plugin plugin, Runnable task, long delayTicks, long periodTicks) {
-        Builder builder = MinecraftServer.getSchedulerManager().buildTask(task);
+        int id = nextId.incrementAndGet();
+        Runnable wrappedTask;
+        if (periodTicks > 0) {
+            wrappedTask = task;
+        } else {
+            wrappedTask = () -> {
+                try { task.run(); }
+                finally { tasks.remove(id); taskOwners.remove(id); }
+            };
+        }
+
+        Builder builder = MinecraftServer.getSchedulerManager().buildTask(wrappedTask);
         TaskSchedule delay = delayTicks <= 0 ? TaskSchedule.immediate() : TaskSchedule.tick((int) delayTicks);
 
         net.minestom.server.timer.Task minestomTask;
@@ -67,7 +78,6 @@ public class LavenderScheduler implements BukkitScheduler {
             minestomTask = builder.delay(delay).schedule();
         }
 
-        int id = minestomTask.id();
         tasks.put(id, minestomTask);
         taskOwners.put(id, plugin);
         return new LavenderTask(id, plugin, minestomTask);
@@ -75,16 +85,22 @@ public class LavenderScheduler implements BukkitScheduler {
 
     private BukkitTask scheduleAsync(Plugin plugin, Runnable task, long delayTicks, long periodTicks) {
         int id = nextId.incrementAndGet();
-        long delayMs = (delayTicks <= 0) ? 0 : (delayTicks * 50); // 1 tick = 50ms
+        long delayMs = (delayTicks <= 0) ? 0 : (delayTicks * 50);
         long periodMs = (periodTicks > 0) ? (Math.max(1, periodTicks) * 50) : -1;
 
-        Runnable wrappedTask = () -> {
-            try {
-                task.run();
-            } catch (Throwable e) {
-                org.slf4j.LoggerFactory.getLogger("LavenderScheduler").error("Async task error", e);
-            }
-        };
+        Runnable wrappedTask;
+        if (periodTicks > 0) {
+            wrappedTask = () -> {
+                try { task.run(); }
+                catch (Throwable e) { org.slf4j.LoggerFactory.getLogger("LavenderScheduler").error("Async task error", e); }
+            };
+        } else {
+            wrappedTask = () -> {
+                try { task.run(); }
+                catch (Throwable e) { org.slf4j.LoggerFactory.getLogger("LavenderScheduler").error("Async task error", e); }
+                finally { tasks.remove(id); taskOwners.remove(id); }
+            };
+        }
 
         ScheduledFuture<?> future;
         if (periodMs > 0) {

@@ -24,10 +24,7 @@ public abstract class Event {
     }
 
     public boolean callEvent() {
-        HandlerList handlers = getHandlers();
-        if (handlers != null) {
-            org.bukkit.Bukkit.getPluginManager().callEvent(this);
-        }
+        org.bukkit.Bukkit.getPluginManager().callEvent(this);
         return true;
     }
 

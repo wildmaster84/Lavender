@@ -5,6 +5,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 
 public class CampfireStartEvent extends BlockEvent {
+    private static final org.bukkit.event.HandlerList HANDLER_LIST = new org.bukkit.event.HandlerList();
     private final ItemStack source;
     private final int cookingTime;
     public CampfireStartEvent(Block block, ItemStack source, int cookingTime) {
@@ -14,6 +15,6 @@ public class CampfireStartEvent extends BlockEvent {
     }
     public ItemStack getSource() { return source; }
     public int getCookingTime() { return cookingTime; }
-    @Override public HandlerList getHandlers() { return new HandlerList(); }
-    public static HandlerList getHandlerList() { return new HandlerList(); }
+    @Override public HandlerList getHandlers() { return HANDLER_LIST; }
+    public static HandlerList getHandlerList() { return HANDLER_LIST; }
 }

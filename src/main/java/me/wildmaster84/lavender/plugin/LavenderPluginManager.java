@@ -53,6 +53,9 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         org.bukkit.event.HandlerList.setUnregisterCallback(listener -> {
             registeredListeners.removeIf(e -> e.listener == listener);
         });
+        org.bukkit.event.HandlerList.setUnregisterPluginCallback(plugin -> {
+            registeredListeners.removeIf(e -> e.plugin == plugin);
+        });
     }
 
     private void ensureBundledLibraries() {

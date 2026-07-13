@@ -17,6 +17,10 @@ public class LavenderInventory implements org.bukkit.inventory.Inventory {
         REGISTRY.put(msInv, wrapper);
     }
 
+    public static void unregister(Inventory msInv) {
+        REGISTRY.remove(msInv);
+    }
+
     private final Inventory msInventory;
     private final String title;
     private final org.bukkit.inventory.InventoryHolder holder;

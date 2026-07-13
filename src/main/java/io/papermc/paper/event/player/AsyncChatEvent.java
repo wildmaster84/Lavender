@@ -5,6 +5,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Cancellable;
 
 public class AsyncChatEvent extends org.bukkit.event.player.PlayerEvent implements Cancellable {
+    private static final org.bukkit.event.HandlerList HANDLER_LIST = new org.bukkit.event.HandlerList();
     private net.kyori.adventure.text.Component message;
     private boolean cancelled = false;
 
@@ -20,6 +21,6 @@ public class AsyncChatEvent extends org.bukkit.event.player.PlayerEvent implemen
     @Override public boolean isCancelled() { return cancelled; }
     @Override public void setCancelled(boolean cancelled) { this.cancelled = cancelled; }
 
-    @Override public HandlerList getHandlers() { return new HandlerList(); }
-    public static HandlerList getHandlerList() { return new HandlerList(); }
+    @Override public HandlerList getHandlers() { return HANDLER_LIST; }
+    public static HandlerList getHandlerList() { return HANDLER_LIST; }
 }

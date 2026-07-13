@@ -3,6 +3,7 @@ package org.bukkit.event.player;
 import org.bukkit.entity.Player;
 
 public class PlayerLoginEvent extends PlayerEvent {
+    private static final org.bukkit.event.HandlerList HANDLER_LIST = new org.bukkit.event.HandlerList();
 
     public enum Result {
         ALLOWED,
@@ -31,10 +32,10 @@ public class PlayerLoginEvent extends PlayerEvent {
 
     @Override
     public org.bukkit.event.HandlerList getHandlers() {
-        return new org.bukkit.event.HandlerList();
+        return HANDLER_LIST;
     }
 
     public static org.bukkit.event.HandlerList getHandlerList() {
-        return new org.bukkit.event.HandlerList();
+        return HANDLER_LIST;
     }
 }
