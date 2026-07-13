@@ -1,0 +1,8 @@
+package org.bukkit.inventory;
+
+public enum InventoryType {
+    CHEST, DISPENSER, DROPPER, FURNACE, WORKBENCH, CRAFTING, ENCHANTING, BREWING, PLAYER, CREATIVE, MERCHANT, ENDER_CHEST, ANVIL, BEACON, HOPPER, SHULKER_BOX, BARREL, BLAST_FURNACE, SMOKER, LECTERN, GRINDSTONE, STONECUTTER, CARTOGRAPHY, SMITHING;
+    public enum SlotType { CONTAINER, CRAFTING, ARMOR, FUEL, RESULT, QUICKBAR, OUTSIDE }
+    public int getDefaultSize() { return 27; }
+    public String getDefaultTitle() { return name(); }
+}

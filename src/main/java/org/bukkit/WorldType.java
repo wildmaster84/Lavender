@@ -1,0 +1,6 @@
+package org.bukkit;
+
+public enum WorldType {
+    NORMAL, FLAT, LARGE_BIOMES, AMPLIFIED, CUSTOMIZED, DEBUG_ALL_BLOCK_STATES, DEFAULT,
+    DEFAULT_1_1, CUSTOM
+}

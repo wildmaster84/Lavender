@@ -1,0 +1,13 @@
+package org.bukkit.plugin;
+
+public interface Plugin {
+    String getName();
+    boolean isEnabled();
+    void onEnable();
+    void onDisable();
+    org.bukkit.plugin.PluginDescriptionFile getDescription();
+    org.bukkit.Server getServer();
+    java.util.logging.Logger getLogger();
+    java.io.File getDataFolder();
+    java.io.InputStream getResource(String filename);
+}

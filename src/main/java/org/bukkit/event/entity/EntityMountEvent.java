@@ -1,0 +1,9 @@
+package org.bukkit.event.entity;
+
+import org.bukkit.entity.Entity;
+
+public class EntityMountEvent extends EntityEvent {
+    public EntityMountEvent(Entity entity) { super(entity); }
+    @Override public org.bukkit.event.HandlerList getHandlers() { return new org.bukkit.event.HandlerList(); }
+    public static org.bukkit.event.HandlerList getHandlerList() { return new org.bukkit.event.HandlerList(); }
+}

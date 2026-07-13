@@ -1,0 +1,50 @@
+package org.bukkit.configuration;
+
+public interface ConfigurationSection {
+    Object get(String path);
+    Object get(String path, Object def);
+    String getString(String path);
+    String getString(String path, String def);
+    int getInt(String path);
+    int getInt(String path, int def);
+    boolean getBoolean(String path);
+    boolean getBoolean(String path, boolean def);
+    double getDouble(String path);
+    double getDouble(String path, double def);
+    long getLong(String path);
+    long getLong(String path, long def);
+    java.util.List<?> getList(String path);
+    java.util.List<?> getList(String path, java.util.List<?> def);
+    java.util.List<String> getStringList(String path);
+    java.util.List<Integer> getIntegerList(String path);
+    java.util.List<Boolean> getBooleanList(String path);
+    java.util.List<Double> getDoubleList(String path);
+    java.util.List<Float> getFloatList(String path);
+    java.util.List<Long> getLongList(String path);
+    java.util.List<Byte> getByteList(String path);
+    java.util.List<Character> getCharacterList(String path);
+    java.util.List<java.util.Map<?, ?>> getMapList(String path);
+    boolean contains(String path);
+    boolean contains(String path, boolean ignoreDefault);
+    boolean isSet(String path);
+    void set(String path, Object value);
+    ConfigurationSection createSection(String path);
+    ConfigurationSection getConfigurationSection(String path);
+    java.util.Set<String> getKeys(boolean deep);
+    java.util.Map<String, Object> getValues(boolean deep);
+    String getName();
+    org.bukkit.configuration.Configuration getRoot();
+    org.bukkit.configuration.ConfigurationSection getParent();
+    boolean isString(String path);
+    boolean isInt(String path);
+    boolean isBoolean(String path);
+    boolean isDouble(String path);
+    boolean isLong(String path);
+    boolean isList(String path);
+    boolean isConfigurationSection(String path);
+
+    void setComments(String path, java.util.List<String> comments);
+    java.util.List<String> getComments(String path);
+    void setComment(String path, String comment);
+    String getComment(String path);
+}
