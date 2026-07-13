@@ -39,6 +39,8 @@ public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84
     private final Player player;
     private final LavenderServer server;
     private LavenderPlayerInventory cachedInventory;
+    private String displayName;
+    private String playerListName;
 
     public LavenderPlayer(Player player, LavenderServer server) {
         this.player = player;
@@ -47,10 +49,10 @@ public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84
 
     @Override public UUID getUniqueId() { return player.getUuid(); }
     @Override public String getName() { return player.getUsername(); }
-    @Override public String getDisplayName() { return player.getUsername(); }
-    @Override public void setDisplayName(String name) {}
-    @Override public String getPlayerListName() { return player.getUsername(); }
-    @Override public void setPlayerListName(String name) {}
+    @Override public String getDisplayName() { return displayName != null ? displayName : player.getUsername(); }
+    @Override public void setDisplayName(String name) { this.displayName = name; }
+    @Override public String getPlayerListName() { return playerListName != null ? playerListName : player.getUsername(); }
+    @Override public void setPlayerListName(String name) { this.playerListName = name; }
 
     @Override public void sendMessage(String message) { player.sendMessage(legacyToComponent(message)); }
     @Override public void sendMessage(String[] messages) { for (String m : messages) player.sendMessage(legacyToComponent(m)); }
@@ -548,7 +550,13 @@ public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84
     @Override public boolean leaveVehicle() { return false; }
     @Override public org.bukkit.entity.Entity getVehicle() { return null; }
 
-    @Override public void setCustomName(String name) { player.setCustomName(net.kyori.adventure.text.Component.text(name)); }
+    @Override public void setCustomName(String name) {
+        if (name == null || name.isEmpty()) {
+            player.setCustomName(null);
+        } else {
+            player.setCustomName(legacyToComponent(name));
+        }
+    }
     @Override
     public String getCustomName() {
         net.kyori.adventure.text.Component name = player.getCustomName();

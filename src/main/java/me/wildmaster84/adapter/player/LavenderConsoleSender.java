@@ -34,7 +34,7 @@ public class LavenderConsoleSender implements ConsoleCommandSender {
     @Override public ConsoleCommandSender getConsoleSender() { return this; }
     @Override public boolean isConversing() { return false; }
 
-    private static String convertColorCodes(String message) {
+    public static String convertColorCodes(String message) {
         if (message == null) return "";
         StringBuilder sb = new StringBuilder(message.length());
         for (int i = 0; i < message.length(); i++) {

@@ -82,12 +82,29 @@ public class EventBridge {
             if (paperEvent.isCancelled()) event.setCancelled(true);
 
             if (!event.isCancelled()) {
-                String msg = String.format("<%s> %s",
-                    PlainTextComponentSerializer.plainText().serialize(event.getPlayer().getName()),
-                    event.getRawMessage());
-                server.getLogger().info(msg);
+                String displayName = bukkitPlayer.getDisplayName();
+                String chatMessage = bukkitEvent.getMessage();
+                String consoleMsg = String.format(bukkitEvent.getFormat(), displayName, chatMessage);
+                server.getLogger().info(me.wildmaster84.adapter.player.LavenderConsoleSender.convertColorCodes(consoleMsg));
 
-                Component formatted = buildChatMessage(event.getPlayer(), event.getRawMessage());
+                Component formatted;
+                if (paperEvent.message() != null && !paperEvent.message().equals(chatComponent)) {
+                    formatted = Component.empty()
+                        .append(LegacyComponentSerializer.legacySection().deserialize(displayName))
+                        .append(Component.text(": "))
+                        .append(paperEvent.message());
+                } else {
+                    String format = bukkitEvent.getFormat();
+                    if (format != null && !format.equals("<%1$s> %2$s")) {
+                        String formattedStr = String.format(format, displayName, chatMessage);
+                        formatted = LegacyComponentSerializer.legacySection().deserialize(formattedStr);
+                    } else {
+                        formatted = Component.empty()
+                            .append(LegacyComponentSerializer.legacySection().deserialize(displayName))
+                            .append(Component.text(": "))
+                            .append(parseLinks(chatMessage));
+                    }
+                }
                 event.setFormattedMessage(formatted);
             }
         });

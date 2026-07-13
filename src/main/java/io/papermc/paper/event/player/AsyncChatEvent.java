@@ -5,7 +5,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Cancellable;
 
 public class AsyncChatEvent extends org.bukkit.event.player.PlayerEvent implements Cancellable {
-    private final net.kyori.adventure.text.Component message;
+    private net.kyori.adventure.text.Component message;
     private boolean cancelled = false;
 
     public AsyncChatEvent(Player player, net.kyori.adventure.text.Component message) {
@@ -14,6 +14,7 @@ public class AsyncChatEvent extends org.bukkit.event.player.PlayerEvent implemen
     }
 
     public net.kyori.adventure.text.Component message() { return message; }
+    public void message(net.kyori.adventure.text.Component message) { this.message = message; }
     public String getMessage() { return net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(message); }
 
     @Override public boolean isCancelled() { return cancelled; }
