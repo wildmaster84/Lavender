@@ -23,6 +23,18 @@
         <id>jitpack.io</id>
         <url>https://jitpack.io</url>
     </repository>
+    <repository>
+        <id>hypera-snapshots</id>
+        <url>https://repo.hypera.dev/snapshots/</url>
+    </repository>
+    <repository>
+        <id>lucko</id>
+        <url>https://repo.lucko.me/</url>
+    </repository>
+    <repository>
+        <id>sonatype-snapshots</id>
+        <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
 </repositories>
 
 <dependencies>
@@ -59,6 +71,12 @@
 		<artifactId>guava</artifactId>
 		<version>33.2.1-jre</version>
 	</dependency>
+    <dependency>
+        <groupId>dev.lu15</groupId>
+        <artifactId>spark-minestom</artifactId>
+        <version>1.10-SNAPSHOT</version>
+        <scope>compile</scope>
+    </dependency>
 </dependencies>
 <build>
     <plugins>

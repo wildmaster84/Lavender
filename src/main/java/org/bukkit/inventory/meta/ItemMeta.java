@@ -39,7 +39,6 @@ public interface ItemMeta extends Cloneable {
     java.util.Map<org.bukkit.enchantments.Enchantment, Integer> getEnchants();
     boolean removeEnchant(org.bukkit.enchantments.Enchantment ench);
     void removeEnchantments();
-    org.bukkit.persistence.PersistentDataContainer getPersistentDataContainer();
     Map<String, Object> serialize();
     ItemMeta clone();
 }

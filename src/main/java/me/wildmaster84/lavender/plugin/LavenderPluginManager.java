@@ -40,6 +40,7 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         "net.kyori:adventure-text-minimessage:5.2.0",
         "com.googlecode.json-simple:json-simple:1.1.1",
         "org.xerial:sqlite-jdbc:3.46.1.3",
+        "org.apache.logging.log4j:log4j-api:2.24.3",
     };
 
     public LavenderPluginManager(Server server, File pluginsDir) {
@@ -55,6 +56,12 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         });
         org.bukkit.event.HandlerList.setUnregisterPluginCallback(plugin -> {
             registeredListeners.removeIf(e -> e.plugin == plugin);
+        });
+        org.bukkit.command.PluginCommand.setRegistrationCallback(pc -> {
+            net.minestom.server.command.CommandManager cm = MinecraftServer.getCommandManager();
+            String name = pc.getName();
+            if (cm.getCommand(name) != null) return;
+            registerMinestomCommand(cm, name, pc);
         });
     }
 
@@ -159,7 +166,6 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
             return;
         }
 
-        // First pass: parse all plugin descriptions without loading main classes
         Map<String, File> pluginJars = new LinkedHashMap<>();
         Map<String, PluginDescriptionFile> pluginDescs = new LinkedHashMap<>();
         for (File jar : jarFiles) {
@@ -167,6 +173,7 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
                 JarEntry entry = jf.getJarEntry("plugin.yml");
                 if (entry == null) {
                     logger.warn("No plugin.yml found in " + jar.getName());
+                    logger.warn("Bukkit/SpigotMC plugins only.");
                     continue;
                 }
                 try (InputStream in = jf.getInputStream(entry)) {
@@ -186,10 +193,8 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
             }
         }
 
-        // Topological sort based on hard dependencies
         List<String> loadOrder = topologicalSort(pluginDescs);
 
-        // Load plugins in dependency order
         for (String name : loadOrder) {
             PluginDescriptionFile desc = pluginDescs.get(name);
             File jar = pluginJars.get(name);
@@ -205,7 +210,6 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
             }
         }
 
-        // Enable in the same dependency order
         for (String name : loadOrder) {
             Plugin plugin = plugins.get(name);
             if (plugin == null) continue;
@@ -218,7 +222,6 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
             }
         }
 
-        // Print summary
         printPluginSummary();
     }
 
@@ -263,7 +266,6 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
             sortByDeps(name, descs, visited, visiting, skipped, result);
         }
 
-        // Log skipped plugins
         for (String name : skipped) {
             PluginDescriptionFile desc = descs.get(name);
             List<String> hardDeps = desc.getDepend();
@@ -291,7 +293,6 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
 
         visiting.add(name);
 
-        // Check hard dependencies
         List<String> hardDeps = desc.getDepend();
         if (hardDeps != null) {
             for (String dep : hardDeps) {
@@ -303,7 +304,6 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
                 }
                 sortByDeps(depLower, descs, visited, visiting, skipped, result);
                 if (skipped.contains(depLower)) {
-                    // Dependency was skipped, so skip this too
                     skipped.add(name);
                     visiting.remove(name);
                     return;
@@ -325,22 +325,6 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         visited.add(name);
         result.add(name);
     }
-
-//    private Plugin loadPlugin(File jarFile) throws Exception {
-//        try (JarFile jar = new JarFile(jarFile)) {
-//            JarEntry entry = jar.getJarEntry("plugin.yml");
-//            if (entry == null) {
-//                logger.warn("No plugin.yml found in " + jarFile.getName());
-//                return null;
-//            }
-//            try (InputStream in = jar.getInputStream(entry)) {
-//                org.yaml.snakeyaml.Yaml yaml = new org.yaml.snakeyaml.Yaml();
-//                Map<String, Object> map = yaml.load(in);
-//                PluginDescriptionFile desc = new PluginDescriptionFile(map);
-//                return loadPlugin(jarFile, desc);
-//            }
-//        }
-//    }
 
     private Plugin loadPlugin(File jarFile, PluginDescriptionFile desc) throws Exception {
         if (desc.getName() == null || desc.getMain() == null) {
@@ -368,6 +352,12 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         File dataFolder = new File(pluginsDir, desc.getName());
         plugin.init(server, desc, dataFolder, classLoader);
 
+        try {
+            plugin.onLoad();
+        } catch (Throwable t) {
+            logger.error("Error in onLoad() for plugin " + desc.getName() + ": " + t.getMessage(), t);
+        }
+
         if (desc.getCommands() != null) {
             for (String cmdName : desc.getCommands().keySet()) {
                 PluginCommand pc = plugin.getCommand(cmdName);
@@ -388,48 +378,21 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         if (plugin.isEnabled()) return;
         ((JavaPlugin) plugin).setEnabled(true);
         plugin.onEnable();
-        registerPluginCommands(plugin);
-        SparkCompat.install(plugin, logger);
+        registerPluginCommands();
     }
 
-    private void registerPluginCommands(Plugin plugin) {
-        if (!(plugin instanceof JavaPlugin)) return;
-        JavaPlugin jp = (JavaPlugin) plugin;
+    private void registerPluginCommands() {
         net.minestom.server.command.CommandManager cm = MinecraftServer.getCommandManager();
-        // Use reflection to access registeredCommands map
-        try {
-            java.lang.reflect.Field field = JavaPlugin.class.getDeclaredField("registeredCommands");
-            field.setAccessible(true);
-            @SuppressWarnings("unchecked")
-            Map<String, PluginCommand> cmds = (Map<String, PluginCommand>) field.get(jp);
-            for (Map.Entry<String, PluginCommand> entry : cmds.entrySet()) {
-                PluginCommand cmd = entry.getValue();
-                String name = entry.getKey();
-                if (cm.getCommand(name) != null) continue;
-                registerMinestomCommand(cm, name, cmd);
-            }
-        } catch (Exception e) {
-            logger.warn("Failed to register commands for " + plugin.getName() + ": " + e.getMessage());
-        }
-
-        try {
-            if (this.commandMap == null) {
-                logger.warn("commandMap is null! SimplePluginManager field not initialized.");
-            } else {
-                org.bukkit.command.SimpleCommandMap simpleCommandMap = (org.bukkit.command.SimpleCommandMap) this.commandMap;
-                Set<String> seen = new HashSet<>();
-                for (Map.Entry<String, org.bukkit.command.Command> entry : simpleCommandMap.knownCommands.entrySet()) {
-                    org.bukkit.command.Command cmd = entry.getValue();
-                    String name = cmd.getName();
-                    if (entry.getKey().contains(":")) continue;
-                    if (seen.contains(name)) continue;
-                    seen.add(name);
-                    if (cm.getCommand(name) != null) continue;
-                    registerMinestomCommand(cm, name, cmd);
-                }
-            }
-        } catch (Exception e) {
-            logger.warn("Failed to bridge SimpleCommandMap commands: " + e.getMessage(), e);
+        org.bukkit.command.SimpleCommandMap simpleCommandMap = (org.bukkit.command.SimpleCommandMap) this.commandMap;
+        Set<String> seen = new HashSet<>();
+        for (Map.Entry<String, org.bukkit.command.Command> entry : simpleCommandMap.knownCommands.entrySet()) {
+            if (entry.getKey().contains(":")) continue;
+            org.bukkit.command.Command cmd = entry.getValue();
+            String name = cmd.getName();
+            if (seen.contains(name)) continue;
+            seen.add(name);
+            if (cm.getCommand(name) != null) continue;
+            registerMinestomCommand(cm, name, cmd);
         }
     }
 

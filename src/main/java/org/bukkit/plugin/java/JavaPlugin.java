@@ -51,11 +51,9 @@ public abstract class JavaPlugin implements Plugin, CommandExecutor, TabComplete
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
     @Override public abstract void onEnable();
     @Override public void onDisable() {}
+    public void onLoad() {}
     @Override public PluginDescriptionFile getDescription() { return description; }
 
-    public io.papermc.paper.plugin.configuration.PluginMeta getPluginMeta() {
-        return new PluginMetaImpl(description);
-    }
     @Override public Server getServer() { return server; }
     @Override public Logger getLogger() { return logger; }
     @Override public File getDataFolder() { return dataFolder; }

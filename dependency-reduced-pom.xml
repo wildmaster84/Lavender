@@ -48,6 +48,18 @@
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
+    <repository>
+      <id>hypera-snapshots</id>
+      <url>https://repo.hypera.dev/snapshots/</url>
+    </repository>
+    <repository>
+      <id>lucko</id>
+      <url>https://repo.lucko.me/</url>
+    </repository>
+    <repository>
+      <id>sonatype-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
   </repositories>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

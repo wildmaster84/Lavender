@@ -25,6 +25,8 @@ public final class Bukkit {
     public static Collection<? extends Player> getOnlinePlayers() { return server.getOnlinePlayers(); }
     public static PluginManager getPluginManager() { return server.getPluginManager(); }
     public static BukkitScheduler getScheduler() { return server.getScheduler(); }
+    public static org.bukkit.command.CommandMap getCommandMap() { return server.getCommandMap(); }
+    public static org.bukkit.help.HelpMap getHelpMap() { return server.getHelpMap(); }
     public static double[] getTPS() { return server.getTPS(); }
     public static World getWorld(String name) { return server.getWorld(name); }
     public static World getWorld(UUID uid) { return server.getWorld(uid); }
@@ -39,7 +41,7 @@ public final class Bukkit {
     public static boolean isPrimaryThread() { return server.isPrimaryThread(); }
     public static boolean getOnlineMode() { return server.getOnlineMode(); }
     public static java.io.File getWorldContainer() { return server.getWorldContainer(); }
-    public static io.papermc.paper.threadedregions.scheduler.AsyncScheduler getAsyncScheduler() { return server.getAsyncScheduler(); }
+    //public static io.papermc.paper.threadedregions.scheduler.AsyncScheduler getAsyncScheduler() { return server.getAsyncScheduler(); }
     public static String getMinecraftVersion() { return server.getMinecraftVersion(); }
     public static org.bukkit.packs.ResourcePack getServerResourcePack() { return null; }
     public static int getSimulationDistance() { return 8; }

@@ -42,23 +42,22 @@ public class LavenderServer implements Server, CraftServer {
     private LavenderScheduler scheduler;
     private EventManager eventManager;
     private LavenderConsoleSender consoleSender;
-    private LavenderAsyncScheduler asyncScheduler;
     private me.wildmaster84.lavender.plugin.SimpleServicesManager servicesManager;
     private org.bukkit.plugin.messaging.Messenger messenger;
     public org.bukkit.command.CommandMap commandMap;
+    private final org.bukkit.help.SimpleHelpMap helpMap = new org.bukkit.help.SimpleHelpMap();
 
     private final Map<String, LavenderWorld> worlds = new ConcurrentHashMap<>();
     private final Map<UUID, LavenderWorld> worldsByUUID = new ConcurrentHashMap<>();
 
     public LavenderServer(Lavender lavender) {
         this.lavender = lavender;
-        this.scheduler = new LavenderScheduler(lavender.getAsyncPool());
+        this.scheduler = new LavenderScheduler(lavender.getTimer(), lavender.getVirtualExecutor());
         this.eventManager = new EventManager();
         this.commandMap = new org.bukkit.command.SimpleCommandMap();
         this.pluginManager = new LavenderPluginManager(this, new File("plugins"));
         this.pluginManager.commandMap = this.commandMap;
         this.consoleSender = new LavenderConsoleSender(this);
-        this.asyncScheduler = new LavenderAsyncScheduler(lavender.getAsyncPool());
         this.servicesManager = new me.wildmaster84.lavender.plugin.SimpleServicesManager();
         this.messenger = new org.bukkit.plugin.messaging.StandardMessenger();
     }
@@ -66,6 +65,9 @@ public class LavenderServer implements Server, CraftServer {
     @Override public String getName() { return "Lavender"; }
     @Override public void setName(String name) { MinecraftServer.setBrandName(name); }
     public org.bukkit.command.SimpleCommandMap getCommandMap() { return (org.bukkit.command.SimpleCommandMap) commandMap; }
+
+    @Override
+    public org.bukkit.help.HelpMap getHelpMap() { return helpMap; }
 
     @Override public Logger getLogger() { return MinecraftServer.LOGGER; }
 
@@ -275,7 +277,7 @@ public class LavenderServer implements Server, CraftServer {
 
     @Override public java.io.File getWorldContainer() { return new java.io.File("."); }
 
-    @Override public io.papermc.paper.threadedregions.scheduler.AsyncScheduler getAsyncScheduler() { return asyncScheduler; }
+    //@Override public io.papermc.paper.threadedregions.scheduler.AsyncScheduler getAsyncScheduler() { return asyncScheduler; }
 
     @Override public String getMinecraftVersion() { return MinecraftServer.VERSION_NAME; }
     @Override public org.bukkit.packs.ResourcePack getServerResourcePack() { return null; }

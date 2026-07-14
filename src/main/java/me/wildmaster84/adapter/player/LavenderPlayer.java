@@ -20,7 +20,7 @@ import net.minestom.server.command.CommandManager;
 
 public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84.adapter.server.entity.CraftPlayer {
 
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LavenderPlayer.class);
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("Lavender");
     private static final java.util.Map<UUID, LavenderPlayer> cache = new java.util.concurrent.ConcurrentHashMap<>();
 
     public static LavenderPlayer wrap(Player player, LavenderServer server) {
@@ -732,6 +732,14 @@ public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84
     }
     @Override public void sendResourcePacks(net.kyori.adventure.resource.ResourcePackRequest request) {}
     @Override public void removeResourcePacks() {}
+    @Override public String getLocale() {
+        try {
+            java.util.Locale locale = player.getSettings().locale();
+            return locale != null ? locale.toString() : "en_US";
+        } catch (Throwable t) {
+            return "en_US";
+        }
+    }
 
     @Override public java.lang.Iterable<org.bukkit.boss.BossBar> activeBossBars() { return java.util.Collections.emptyList(); }
 

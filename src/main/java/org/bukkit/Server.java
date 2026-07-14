@@ -28,6 +28,8 @@ public interface Server {
 
     PluginManager getPluginManager();
     BukkitScheduler getScheduler();
+    org.bukkit.command.CommandMap getCommandMap();
+    org.bukkit.help.HelpMap getHelpMap();
 
     World getWorld(String name);
     World getWorld(UUID uid);
@@ -62,7 +64,7 @@ public interface Server {
 
     java.io.File getWorldContainer();
 
-    io.papermc.paper.threadedregions.scheduler.AsyncScheduler getAsyncScheduler();
+    //io.papermc.paper.threadedregions.scheduler.AsyncScheduler getAsyncScheduler();
 
     String getMinecraftVersion();
 

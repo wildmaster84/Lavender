@@ -248,6 +248,7 @@ public interface Player extends HumanEntity, org.bukkit.OfflinePlayer, org.bukki
     void sendActionBar(net.kyori.adventure.text.Component message);
     void sendResourcePacks(net.kyori.adventure.resource.ResourcePackRequest request);
     void removeResourcePacks();
+    String getLocale();
 
     java.lang.Iterable<org.bukkit.boss.BossBar> activeBossBars();
 

@@ -75,13 +75,9 @@ public class EventBridge {
             LavenderPlayer bukkitPlayer = LavenderPlayer.wrap(event.getPlayer(), server);
             AsyncPlayerChatEvent bukkitEvent = new AsyncPlayerChatEvent(false, bukkitPlayer, event.getRawMessage(), new HashSet<>());
             Component chatComponent = LegacyComponentSerializer.legacySection().deserialize(event.getRawMessage());
-            io.papermc.paper.event.player.AsyncChatEvent paperEvent = new io.papermc.paper.event.player.AsyncChatEvent(bukkitPlayer, chatComponent);
 
             server.getPluginManager().callEvent(bukkitEvent);
             if (bukkitEvent.isCancelled()) event.setCancelled(true);
-
-            server.getPluginManager().callEvent(paperEvent);
-            if (paperEvent.isCancelled()) event.setCancelled(true);
 
             if (!event.isCancelled()) {
                 String displayName = bukkitPlayer.getDisplayName();
@@ -90,23 +86,17 @@ public class EventBridge {
                 server.getLogger().info(me.wildmaster84.adapter.player.LavenderConsoleSender.convertColorCodes(consoleMsg));
 
                 Component formatted;
-                if (paperEvent.message() != null && !paperEvent.message().equals(chatComponent)) {
+                String format = bukkitEvent.getFormat();
+                if (format != null && !format.equals("<%1$s> %2$s")) {
+                    String formattedStr = String.format(format, displayName, chatMessage);
+                    formatted = LegacyComponentSerializer.legacySection().deserialize(formattedStr);
+                } else {
                     formatted = Component.empty()
                         .append(LegacyComponentSerializer.legacySection().deserialize(displayName))
                         .append(Component.text(": "))
-                        .append(paperEvent.message());
-                } else {
-                    String format = bukkitEvent.getFormat();
-                    if (format != null && !format.equals("<%1$s> %2$s")) {
-                        String formattedStr = String.format(format, displayName, chatMessage);
-                        formatted = LegacyComponentSerializer.legacySection().deserialize(formattedStr);
-                    } else {
-                        formatted = Component.empty()
-                            .append(LegacyComponentSerializer.legacySection().deserialize(displayName))
-                            .append(Component.text(": "))
-                            .append(parseLinks(chatMessage));
-                    }
+                        .append(parseLinks(chatMessage));
                 }
+                
                 event.setFormattedMessage(formatted);
             }
         });

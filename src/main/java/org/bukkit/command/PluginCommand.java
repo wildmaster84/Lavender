@@ -1,12 +1,18 @@
 package org.bukkit.command;
 
 import org.bukkit.plugin.Plugin;
+import java.util.function.Consumer;
 
-public class PluginCommand extends Command {
+public class PluginCommand extends Command implements PluginIdentifiableCommand {
 
     private final Plugin owningPlugin;
     private CommandExecutor executor;
     private TabCompleter completer;
+    private static Consumer<PluginCommand> registrationCallback;
+
+    public static void setRegistrationCallback(Consumer<PluginCommand> callback) {
+        registrationCallback = callback;
+    }
 
     public PluginCommand(String name, Plugin owner) {
         super(name);
@@ -15,6 +21,9 @@ public class PluginCommand extends Command {
 
     public void setExecutor(CommandExecutor executor) {
         this.executor = executor;
+        if (registrationCallback != null) {
+            registrationCallback.accept(this);
+        }
     }
 
     public CommandExecutor getExecutor() {

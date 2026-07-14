@@ -22,7 +22,16 @@ import me.wildmaster84.lavender.rcon.RCONServer;
 import me.wildmaster84.lavender.util.*;
 
 import java.io.*;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
+import java.lang.reflect.Field;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
+
+import me.lucko.spark.minestom.SparkMinestom;
 
 import org.slf4j.*;
 
@@ -35,15 +44,17 @@ public final class Lavender {
     private final ServerProperties properties;
     private me.wildmaster84.lavender.util.PlayerDataStore playerData;
     private RCONServer rconServer;
-    private Thread console;
+    private SparkMinestom spark;
     private net.minestom.server.coordinate.Pos spawnPoint = new net.minestom.server.coordinate.Pos(0, 100, 0);
-    final ScheduledExecutorService asyncPool = Executors.newScheduledThreadPool(4, r -> {
-        Thread t = new Thread(r, "Lavender-Async");
+    private final ScheduledExecutorService timer = Executors.newScheduledThreadPool(1, r -> {
+        Thread t = new Thread(r, "Lavender-Timer");
         t.setDaemon(true);
         return t;
     });
+    private final ExecutorService virtualExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
-    public ScheduledExecutorService getAsyncPool() { return asyncPool; }
+    public ScheduledExecutorService getTimer() { return timer; }
+    public ExecutorService getVirtualExecutor() { return virtualExecutor; }
     public net.minestom.server.coordinate.Pos getSpawnPoint() { return spawnPoint; }
 
     public Lavender() {
@@ -118,6 +129,16 @@ public final class Lavender {
     public void start() {
         ((LavenderServer) server).loadPlugins();
 
+        try {
+            spark = SparkMinestom.builder(java.nio.file.Path.of("spark"))
+                    .commands(true)
+                    .permissionHandler((sender, permission) -> true)
+                    .enable();
+            log.info("Spark profiler enabled");
+        } catch (Throwable t) {
+            log.warn("Failed to enable Spark: {}", t.getMessage());
+        }
+
         log.info("Loading spawn chunks...");
         try {
             for (int cx = -1; cx <= 1; cx++) {
@@ -144,18 +165,21 @@ public final class Lavender {
         new EventBridge((LavenderServer) server, playerData, spawnPoint).registerAll();
 
         SchedulerManager scheduler = MinecraftServer.getSchedulerManager();
+
         scheduler.buildTask(this::saveAllWorlds)
                 .repeat(TaskSchedule.tick(2400))
                 .delay(TaskSchedule.tick(2400))
                 .schedule();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        Runtime.getRuntime().addShutdownHook(Thread.ofVirtual().name("Lavender-Shutdown").unstarted(() -> {
             try { saveAllWorlds(); } catch (Throwable t) { log.error("Error saving worlds: {}", t.getMessage()); }
             try { ((LavenderServer) server).disableAllPlugins(); } catch (Throwable t) { log.error("Error disabling plugins: {}", t.getMessage()); }
+            try { if (spark != null) spark.shutdown(); } catch (Throwable t) {}
             try { if (rconServer != null) rconServer.stop(); } catch (Throwable t) {}
-            try { asyncPool.shutdownNow(); } catch (Throwable t) {}
+            try { timer.shutdownNow(); } catch (Throwable t) {}
+            try { virtualExecutor.shutdownNow(); } catch (Throwable t) {}
             Runtime.getRuntime().halt(0);
-        }, "Lavender-Shutdown"));
+        }));
 
         minecraft.start(properties.getServerIp(), properties.getServerPort());
     }
@@ -308,7 +332,7 @@ public final class Lavender {
     }
 
     private void startConsole() {
-        console = new Thread(() -> {
+        Thread.ofVirtual().name("Lavender-Console").start(() -> {
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             while (true) {
                 try {
@@ -330,8 +354,6 @@ public final class Lavender {
                     break;
                 }
             }
-        }, "Lavender-Console");
-        console.setDaemon(true);
-        console.start();
+        });
     }
 }

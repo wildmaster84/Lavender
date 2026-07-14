@@ -9,6 +9,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -19,10 +20,12 @@ public class LavenderScheduler implements BukkitScheduler {
     private final Map<Integer, Plugin> taskOwners = new ConcurrentHashMap<>();
     private final AtomicInteger nextId = new AtomicInteger(0);
 
-    private final ScheduledExecutorService asyncPool;
+    private final ScheduledExecutorService timer;
+    private final ExecutorService executor;
 
-    public LavenderScheduler(ScheduledExecutorService pool) {
-        this.asyncPool = pool;
+    public LavenderScheduler(ScheduledExecutorService timer, ExecutorService executor) {
+        this.timer = timer;
+        this.executor = executor;
     }
 
     @Override
@@ -102,11 +105,13 @@ public class LavenderScheduler implements BukkitScheduler {
             };
         }
 
+        Runnable dispatchToVirtual = () -> executor.submit(wrappedTask);
+
         ScheduledFuture<?> future;
         if (periodMs > 0) {
-            future = asyncPool.scheduleAtFixedRate(wrappedTask, delayMs, periodMs, TimeUnit.MILLISECONDS);
+            future = timer.scheduleAtFixedRate(dispatchToVirtual, delayMs, periodMs, TimeUnit.MILLISECONDS);
         } else {
-            future = asyncPool.schedule(wrappedTask, delayMs, TimeUnit.MILLISECONDS);
+            future = timer.schedule(dispatchToVirtual, delayMs, TimeUnit.MILLISECONDS);
         }
 
         tasks.put(id, future);

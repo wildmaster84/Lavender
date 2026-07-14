@@ -14,7 +14,6 @@ public class SimpleItemMeta implements ItemMeta, org.bukkit.inventory.meta.Skull
     private int customModelData = 0;
     private boolean hasCustomModelDataFlag = false;
     private int repairCost = 0;
-    private final SimplePersistentDataContainer persistentDataContainer = new SimplePersistentDataContainer();
     private boolean hasRepairCostFlag = false;
     private boolean unbreakable = false;
     private Set<ItemFlag> itemFlags = new HashSet<>();
@@ -56,7 +55,6 @@ public class SimpleItemMeta implements ItemMeta, org.bukkit.inventory.meta.Skull
     @Override public Map<Enchantment, Integer> getEnchants() { return enchants; }
     @Override public boolean removeEnchant(Enchantment ench) { return enchants.remove(ench) != null; }
     @Override public void removeEnchantments() { enchants.clear(); }
-    @Override public org.bukkit.persistence.PersistentDataContainer getPersistentDataContainer() { return persistentDataContainer; }
     @Override public Map<String, Object> serialize() { return new HashMap<>(); }
     @Override public SimpleItemMeta clone() {
         SimpleItemMeta copy = new SimpleItemMeta();

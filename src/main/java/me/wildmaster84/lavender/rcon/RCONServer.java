@@ -20,9 +20,7 @@ public class RCONServer {
         running = true;
         try {
             serverSocket = new ServerSocket(port);
-            Thread t = new Thread(this::acceptLoop, "RCON-Accept");
-            t.setDaemon(true);
-            t.start();
+            Thread t = Thread.ofVirtual().name("RCON-Accept").start(this::acceptLoop);
             MinecraftServer.LOGGER.info("RCON listening on port " + port);
         } catch (IOException e) {
             MinecraftServer.LOGGER.error("RCON failed to start: " + e.getMessage());
@@ -38,7 +36,7 @@ public class RCONServer {
         while (running) {
             try {
                 Socket client = serverSocket.accept();
-                new Thread(() -> handleClient(client), "RCON-Client").start();
+                Thread.startVirtualThread(() -> handleClient(client));
             } catch (IOException e) {
                 if (running) MinecraftServer.LOGGER.error("RCON accept error: " + e.getMessage());
             }

@@ -39,9 +39,6 @@ public class ItemStack implements Cloneable {
     }
     public boolean setItemMeta(ItemMeta meta) { this.itemMeta = meta; return true; }
     public boolean hasItemMeta() { return true; }
-    public io.papermc.paper.persistence.PersistentDataContainerView getPersistentDataContainer() {
-        return getItemMeta().getPersistentDataContainer();
-    }
     public java.util.List<net.kyori.adventure.text.Component> lore() { return getItemMeta().lore(); }
     public void lore(java.util.List<net.kyori.adventure.text.Component> lore) { getItemMeta().lore(lore); }
     public java.util.List<String> getLore() { return getItemMeta().getLore(); }
