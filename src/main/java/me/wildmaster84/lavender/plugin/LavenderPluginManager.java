@@ -520,7 +520,7 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         for (Plugin plugin : new ArrayList<>(plugins.values())) {
             try {
                 disablePlugin(plugin);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 logger.error("Error disabling plugin " + plugin.getName() + ": " + e.getMessage());
             }
         }
