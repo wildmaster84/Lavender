@@ -18,7 +18,7 @@ import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 import net.minestom.server.command.CommandManager;
 
-public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84.adapter.server.entity.CraftPlayer {
+public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84.adapter.server.entity.CraftPlayer, org.bukkit.craftbukkit.entity.CraftPlayer {
 
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("Lavender");
     private static final java.util.Map<UUID, LavenderPlayer> cache = new java.util.concurrent.ConcurrentHashMap<>();
@@ -754,5 +754,10 @@ public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84
             profile.putProperty("textures", new com.mojang.authlib.properties.Property("textures", skin.textures(), skin.signature()));
         }
         return profile;
+    }
+
+    @Override
+    public net.minecraft.server.level.ServerPlayer getHandle() {
+        return new net.minecraft.server.level.ServerPlayer(player);
     }
 }

@@ -147,10 +147,20 @@ public class LavenderBlock implements org.bukkit.block.Block {
     public boolean canPlace() { return true; }
 
     @Override
-    public void setBlockData(org.bukkit.block.data.BlockData blockData) {}
+    public void setBlockData(org.bukkit.block.data.BlockData blockData) {
+        setBlockData(blockData, true);
+    }
 
     @Override
-    public org.bukkit.block.data.BlockData getBlockData() { return null; }
+    public void setBlockData(org.bukkit.block.data.BlockData blockData, boolean applyPhysics) {
+        if (blockData == null) return;
+        setType(blockData.getMaterial(), applyPhysics);
+    }
+
+    @Override
+    public org.bukkit.block.data.BlockData getBlockData() {
+        return new SimpleBlockData(getType());
+    }
 
     @Override
     public org.bukkit.Chunk getChunk() { return world.getChunkAt(x >> 4, z >> 4); }

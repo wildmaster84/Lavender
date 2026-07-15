@@ -1,6 +1,6 @@
 package org.bukkit;
 
-public enum Material {
+public enum Material implements Keyed {
 	AIR,
 	STONE,
 	GRASS,
@@ -967,10 +967,20 @@ public enum Material {
 	COMMAND_BLOCK_MINECART,
 	GOD_APPLE;
 
+	private static transient int isBlockDebugCount = 0;
 	public boolean isBlock() {
 		try {
-			return net.minestom.server.instance.block.Block.fromKey("minecraft:" + name().toLowerCase(java.util.Locale.ROOT)) != null;
+			boolean result = net.minestom.server.instance.block.Block.fromKey("minecraft:" + name().toLowerCase(java.util.Locale.ROOT)) != null;
+			if (isBlockDebugCount < 20) {
+				isBlockDebugCount++;
+				System.out.println("[Lavender-Debug] Material.isBlock(" + name() + ") = " + result);
+			}
+			return result;
 		} catch (Exception e) {
+			if (isBlockDebugCount < 20) {
+				isBlockDebugCount++;
+				System.out.println("[Lavender-Debug] Material.isBlock(" + name() + ") threw: " + e.getClass().getName() + ": " + e.getMessage());
+			}
 			return false;
 		}
 	}
@@ -988,7 +998,18 @@ public enum Material {
 	public int getMaxStackSize() { return 64; }
 	public boolean hasGravity() { return this == SAND || this == GRAVEL || this == ANVIL; }
 	public boolean isEdible() { return false; }
-	
+
+	@Override
+	public NamespacedKey getKey() { return new NamespacedKey("minecraft", name().toLowerCase(java.util.Locale.ROOT)); }
+
+	public org.bukkit.block.data.BlockData createBlockData() {
+		return new me.wildmaster84.adapter.world.SimpleBlockData(this);
+	}
+
+	public org.bukkit.block.data.BlockData createBlockData(String state) {
+		return new me.wildmaster84.adapter.world.SimpleBlockData(this, state);
+	}
+
 	public static Material matchMaterial(String name) {
 		if (name == null) return null;
 	    String cleaned = name.toUpperCase().replace(" ", "_").replace("MINECRAFT:", "");

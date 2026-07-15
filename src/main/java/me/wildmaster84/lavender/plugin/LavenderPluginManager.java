@@ -41,6 +41,7 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         "com.googlecode.json-simple:json-simple:1.1.1",
         "org.xerial:sqlite-jdbc:3.46.1.3",
         "org.apache.logging.log4j:log4j-api:2.24.3",
+        "org.apache.logging.log4j:log4j-to-slf4j:2.24.3",
     };
 
     public LavenderPluginManager(Server server, File pluginsDir) {
@@ -350,7 +351,7 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
 
         JavaPlugin plugin = (JavaPlugin) mainClass.getDeclaredConstructor().newInstance();
         File dataFolder = new File(pluginsDir, desc.getName());
-        plugin.init(server, desc, dataFolder, classLoader);
+        plugin.init(server, desc, dataFolder, classLoader, jarFile);
 
         try {
             plugin.onLoad();
@@ -447,7 +448,6 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
             if (cs instanceof net.minestom.server.entity.Player mp) {
                 return LavenderPlayer.wrap(mp, (LavenderServer) server);
             }
-            return new LavenderConsoleSender((org.bukkit.Server) server);
         }
         return new LavenderConsoleSender((org.bukkit.Server) server);
     }

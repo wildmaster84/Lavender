@@ -18,4 +18,8 @@ public class PluginClassLoader extends java.net.URLClassLoader {
     public Plugin getPlugin() {
         return plugin;
     }
+
+    Class<?> loadClass0(String name, boolean resolve, boolean checkParents, boolean global) throws ClassNotFoundException {
+        return super.loadClass(name, resolve);
+    }
 }

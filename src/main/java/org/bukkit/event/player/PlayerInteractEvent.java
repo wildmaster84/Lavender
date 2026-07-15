@@ -42,6 +42,14 @@ public class PlayerInteractEvent extends PlayerEvent implements org.bukkit.event
     public BlockFace getBlockFace() { return blockFace; }
     public EquipmentSlot getHand() { return hand; }
 
+    public org.bukkit.event.Event.Result useItemInHand() {
+        return org.bukkit.event.Event.Result.DEFAULT;
+    }
+
+    public org.bukkit.event.Event.Result useInteractedBlock() {
+        return cancelled ? org.bukkit.event.Event.Result.DENY : org.bukkit.event.Event.Result.ALLOW;
+    }
+
     @Override
     public boolean isCancelled() { return cancelled; }
 

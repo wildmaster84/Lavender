@@ -1,6 +1,9 @@
 package org.bukkit.entity;
 
-public enum EntityType {
+import org.bukkit.Keyed;
+import org.bukkit.NamespacedKey;
+
+public enum EntityType implements Keyed {
     DROPPED_ITEM, EXPERIENCE_ORB, AREA_EFFECT_CLOUD, ELDER_GUARDIAN, WITHER_SKELETON, WITHER,
     WITHER_SKULL, EYE_OF_ENDER, FIREWORK, ITEM_FRAME, PAINTING, LEASH_HITCH, ARMOR_STAND,
     EVOKER, VEX, VINDICATOR, ILLUSIONER, COMMAND_MINECART, BOAT, MINECART, MINECART_CHEST,
@@ -23,8 +26,9 @@ public enum EntityType {
         return name().toLowerCase(java.util.Locale.ROOT);
     }
 
-    public String getKey() {
-        return "minecraft:" + name().toLowerCase(java.util.Locale.ROOT);
+    @Override
+    public NamespacedKey getKey() {
+        return new NamespacedKey("minecraft", name().toLowerCase(java.util.Locale.ROOT));
     }
 
     public static EntityType fromName(String name) {

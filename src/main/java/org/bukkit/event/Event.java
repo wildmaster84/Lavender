@@ -4,6 +4,12 @@ public abstract class Event {
     private String name;
     private final boolean async;
 
+    public enum Result {
+        DENY,
+        DEFAULT,
+        ALLOW
+    }
+
     public Event() {
         this(false);
     }

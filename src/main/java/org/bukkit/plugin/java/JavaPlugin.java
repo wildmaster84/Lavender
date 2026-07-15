@@ -26,6 +26,7 @@ public abstract class JavaPlugin implements Plugin, CommandExecutor, TabComplete
     private FileConfiguration config = null;
     private final Map<String, PluginCommand> registeredCommands = new java.util.HashMap<>();
     private ClassLoader classLoader;
+    private File file;
 
     protected JavaPlugin() {}
 
@@ -40,11 +41,17 @@ public abstract class JavaPlugin implements Plugin, CommandExecutor, TabComplete
         }
     }
 
+    public void init(Server server, PluginDescriptionFile description, File dataFolder, ClassLoader classLoader, File file) {
+        init(server, description, dataFolder, classLoader);
+        this.file = file;
+    }
+
     public void init(Server server, PluginDescriptionFile description, File dataFolder) {
         init(server, description, dataFolder, getClass().getClassLoader());
     }
 
     protected ClassLoader getClassLoader() { return classLoader; }
+    public File getFile() { return file; }
 
     @Override public String getName() { return description.getName(); }
     @Override public boolean isEnabled() { return enabled; }

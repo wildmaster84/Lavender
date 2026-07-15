@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class LavenderWorld implements World {
+public class LavenderWorld extends org.bukkit.craftbukkit.CraftWorld {
 
     private final Instance instance;
     private final LavenderServer server;
@@ -24,6 +24,7 @@ public class LavenderWorld implements World {
     private final long seed;
     private final Environment environment;
     private Location spawnLocation;
+    private net.minecraft.server.level.ServerLevel serverLevel;
 
     public LavenderWorld(Instance instance, LavenderServer server, String name, long seed, Environment environment) {
         this.instance = instance;
@@ -410,5 +411,13 @@ public class LavenderWorld implements World {
     @Override
     public boolean isChunkLoaded(int x, int z) {
         return instance.isChunkLoaded(x, z);
+    }
+
+    @Override
+    public net.minecraft.server.level.ServerLevel getHandle() {
+        if (serverLevel == null) {
+            serverLevel = new net.minecraft.server.level.ServerLevel(instance, this);
+        }
+        return serverLevel;
     }
 }

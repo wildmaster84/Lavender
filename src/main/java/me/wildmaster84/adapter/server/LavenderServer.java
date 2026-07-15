@@ -6,6 +6,7 @@ import me.wildmaster84.adapter.player.LavenderConsoleSender;
 import me.wildmaster84.adapter.player.LavenderPlayer;
 import me.wildmaster84.adapter.player.SimpleOfflinePlayer;
 import me.wildmaster84.adapter.world.LavenderWorld;
+import me.wildmaster84.adapter.world.SimpleBlockData;
 import me.wildmaster84.adapter.world.SimpleChunkData;
 import me.wildmaster84.adapter.world.SimpleWorldBorder;
 import me.wildmaster84.adapter.world.SimpleWorldInfo;
@@ -35,7 +36,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public class LavenderServer implements Server, CraftServer {
+public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implements Server, CraftServer {
 
     private final Lavender lavender;
     private LavenderPluginManager pluginManager;
@@ -47,11 +48,11 @@ public class LavenderServer implements Server, CraftServer {
     public org.bukkit.command.CommandMap commandMap;
     private final org.bukkit.help.SimpleHelpMap helpMap = new org.bukkit.help.SimpleHelpMap();
 
-    private final Map<String, LavenderWorld> worlds = new ConcurrentHashMap<>();
     private final Map<UUID, LavenderWorld> worldsByUUID = new ConcurrentHashMap<>();
 
     public LavenderServer(Lavender lavender) {
         this.lavender = lavender;
+        this.worlds = new ConcurrentHashMap<>();
         this.scheduler = new LavenderScheduler(lavender.getTimer(), lavender.getVirtualExecutor());
         this.eventManager = new EventManager();
         this.commandMap = new org.bukkit.command.SimpleCommandMap();
@@ -245,7 +246,7 @@ public class LavenderServer implements Server, CraftServer {
     @Override public String getServerName() { return "Lavender"; }
     @Override public String getMotd() { return lavender.getProperties().getMotd(); }
     @Override public int getMaxPlayers() { return lavender.getProperties().getMaxPlayers(); }
-    @Override public String getVersion() { return "Lavender " + MinecraftServer.VERSION_NAME + " (MC: 1.26.1)"; }
+    @Override public String getVersion() { return "Lavender " + MinecraftServer.VERSION_NAME + " (MC: 26.1)"; }
     @Override public String getBukkitVersion() { return MinecraftServer.VERSION_NAME; }
 
     @Override public boolean isPrimaryThread() { return Thread.currentThread().getName().contains("main"); }
@@ -413,5 +414,30 @@ public class LavenderServer implements Server, CraftServer {
         MinecraftServer.getInstanceManager().unregisterInstance(mw.getInstance());
         MinecraftServer.LOGGER.info("Unloaded world: {}", world.getName());
         return true;
+    }
+
+    @Override
+    public java.util.List<org.bukkit.Tag<?>> getTags(String registry, Class<?> clazz) {
+        return java.util.Collections.emptyList();
+    }
+
+    @Override
+    public <T extends org.bukkit.Keyed> org.bukkit.Tag<T> getTag(String registry, org.bukkit.NamespacedKey key, Class<T> clazz) {
+        return null;
+    }
+
+    @Override
+    public org.bukkit.block.data.BlockData createBlockData(String data) {
+        return new SimpleBlockData(data);
+    }
+
+    @Override
+    public org.bukkit.block.data.BlockData createBlockData(org.bukkit.Material material) {
+        return new SimpleBlockData(material);
+    }
+
+    @Override
+    public org.bukkit.block.data.BlockData createBlockData(org.bukkit.Material material, String extra) {
+        return new SimpleBlockData(material, extra);
     }
 }

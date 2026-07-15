@@ -22,14 +22,7 @@ import me.wildmaster84.lavender.rcon.RCONServer;
 import me.wildmaster84.lavender.util.*;
 
 import java.io.*;
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
-import java.lang.reflect.Field;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 import me.lucko.spark.minestom.SparkMinestom;
 
@@ -52,6 +45,7 @@ public final class Lavender {
         return t;
     });
     private final ExecutorService virtualExecutor = Executors.newVirtualThreadPerTaskExecutor();
+    private final java.util.List<LavenderWorld> pendingWorlds = new java.util.ArrayList<>();
 
     public ScheduledExecutorService getTimer() { return timer; }
     public ExecutorService getVirtualExecutor() { return virtualExecutor; }
@@ -98,8 +92,7 @@ public final class Lavender {
         if (!worldDir.exists()) {
             worldDir.mkdirs();
         }
-        RegistryKey<DimensionType> dimType = MinecraftServer.getDimensionTypeRegistry()
-                .getKey(net.kyori.adventure.key.Key.key("minecraft", "overworld"));
+        RegistryKey<DimensionType> dimType = MinecraftServer.getDimensionTypeRegistry().getKey(net.kyori.adventure.key.Key.key("minecraft", "overworld"));
         world = MinecraftServer.getInstanceManager().createInstanceContainer(dimType, new AnvilLoader(worldDir.toPath(), net.kyori.adventure.key.Key.key("minecraft", "overworld")));
         world.enableAutoChunkLoad(true);
         createWorld();
@@ -108,8 +101,9 @@ public final class Lavender {
         server.setName("Lavender");
         Bukkit.setServer(server);
 
-        ((LavenderServer) server).registerWorld(
-                new LavenderWorld(world, (LavenderServer) server, "world", properties.getLevelSeed(), org.bukkit.World.Environment.NORMAL));
+        net.minecraft.server.dedicated.DedicatedServer.setInstance(new net.minecraft.server.dedicated.DedicatedServer());
+
+        pendingWorlds.add(new LavenderWorld(world, (LavenderServer) server, "world", properties.getLevelSeed(), org.bukkit.World.Environment.NORMAL));
 
         createDimensionWorld("world_nether", "the_nether", org.bukkit.World.Environment.NETHER);
         createDimensionWorld("world_the_end", "the_end", org.bukkit.World.Environment.THE_END);
@@ -129,11 +123,14 @@ public final class Lavender {
     public void start() {
         ((LavenderServer) server).loadPlugins();
 
+        for (LavenderWorld w : pendingWorlds) {
+            ((LavenderServer) server).registerWorld(w);
+        }
+        pendingWorlds.clear();
+        log.info("Registered {} worlds after plugin load", ((LavenderServer) server).getWorlds().size());
+
         try {
-            spark = SparkMinestom.builder(java.nio.file.Path.of("spark"))
-                    .commands(true)
-                    .permissionHandler((sender, permission) -> true)
-                    .enable();
+            spark = SparkMinestom.builder(java.nio.file.Path.of("spark")).commands(true).permissionHandler((sender, permission) -> true).enable();
             log.info("Spark profiler enabled");
         } catch (Throwable t) {
             log.warn("Failed to enable Spark: {}", t.getMessage());
@@ -154,7 +151,6 @@ public final class Lavender {
                     break;
                 }
             }
-            log.info("Spawn point set to (0, {}, 0)", surfaceY);
             spawnPoint = new Pos(0, surfaceY, 0);
             world.saveChunksToStorage().join();
             log.info("Spawn chunks saved to disk");
@@ -294,8 +290,7 @@ public final class Lavender {
             });
         }
         instance.setChunkSupplier(LightingChunk::new);
-        ((LavenderServer) server).registerWorld(
-                new LavenderWorld(instance, (LavenderServer) server, name, properties.getLevelSeed(), env));
+        pendingWorlds.add(new LavenderWorld(instance, (LavenderServer) server, name, properties.getLevelSeed(), env));
         log.info("Created {} world: {}", env, name);
     }
 

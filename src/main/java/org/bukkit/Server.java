@@ -96,4 +96,12 @@ public interface Server {
     org.bukkit.packs.DataPackManager getDataPackManager();
 
     boolean unloadWorld(World world);
+
+    java.util.List<org.bukkit.Tag<?>> getTags(String registry, Class<?> clazz);
+
+    <T extends Keyed> Tag<T> getTag(String registry, NamespacedKey key, Class<T> clazz);
+
+    org.bukkit.block.data.BlockData createBlockData(String data);
+    org.bukkit.block.data.BlockData createBlockData(org.bukkit.Material material);
+    org.bukkit.block.data.BlockData createBlockData(org.bukkit.Material material, String extra);
 }

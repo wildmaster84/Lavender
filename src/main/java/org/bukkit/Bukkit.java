@@ -99,4 +99,25 @@ public final class Bukkit {
         World w = server.getWorld(name);
         return w != null && server.unloadWorld(w);
     }
+
+    public static java.util.List<org.bukkit.Tag<?>> getTags(String registry, Class<?> clazz) {
+        return server.getTags(registry, clazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Keyed> Tag<T> getTag(String registry, NamespacedKey key, Class<T> clazz) {
+        return server.getTag(registry, key, clazz);
+    }
+
+    public static org.bukkit.block.data.BlockData createBlockData(String data) {
+        return server.createBlockData(data);
+    }
+
+    public static org.bukkit.block.data.BlockData createBlockData(org.bukkit.Material material) {
+        return server.createBlockData(material);
+    }
+
+    public static org.bukkit.block.data.BlockData createBlockData(org.bukkit.Material material, String extra) {
+        return server.createBlockData(material, extra);
+    }
 }

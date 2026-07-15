@@ -37,6 +37,7 @@ public interface Block {
     boolean applyBoneMeal(BlockFace face);
     boolean canPlace();
     void setBlockData(org.bukkit.block.data.BlockData blockData);
+    void setBlockData(org.bukkit.block.data.BlockData blockData, boolean applyPhysics);
     org.bukkit.block.data.BlockData getBlockData();
     org.bukkit.Chunk getChunk();
 }

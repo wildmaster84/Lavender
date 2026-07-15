@@ -5,7 +5,7 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.coordinate.Vec;
 
-public class LavenderEntity implements org.bukkit.entity.Entity {
+public class LavenderEntity implements org.bukkit.entity.Entity, org.bukkit.craftbukkit.entity.CraftEntity {
 
     private final Entity entity;
     private final LavenderServer server;
@@ -178,5 +178,10 @@ public class LavenderEntity implements org.bukkit.entity.Entity {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public net.minecraft.world.entity.Entity getHandle() {
+        return new net.minecraft.world.entity.Entity(entity);
     }
 }
