@@ -46,6 +46,9 @@ public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84
     public LavenderPlayer(Player player, LavenderServer server) {
         this.player = player;
         this.server = server;
+        if (scoreboard instanceof me.wildmaster84.lavender.scoreboard.SimpleScoreboard simple) {
+            simple.addViewer(player);
+        }
     }
 
     @Override public UUID getUniqueId() { return player.getUuid(); }
@@ -650,8 +653,21 @@ public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84
     @Override public void setViewDistance(int distance) {}
     @Override public int getClientViewDistance() { return 10; }
 
-    @Override public void setScoreboard(org.bukkit.scoreboard.Scoreboard scoreboard) {}
-    @Override public org.bukkit.scoreboard.Scoreboard getScoreboard() { return null; }
+    private org.bukkit.scoreboard.Scoreboard scoreboard = new me.wildmaster84.lavender.scoreboard.SimpleScoreboard();
+
+    @Override
+    public void setScoreboard(org.bukkit.scoreboard.Scoreboard scoreboard) {
+        if (this.scoreboard instanceof me.wildmaster84.lavender.scoreboard.SimpleScoreboard oldSimple) {
+            oldSimple.removeViewer(this.player);
+        }
+        this.scoreboard = scoreboard;
+        if (scoreboard instanceof me.wildmaster84.lavender.scoreboard.SimpleScoreboard newSimple) {
+            newSimple.addViewer(this.player);
+        }
+    }
+
+    @Override
+    public org.bukkit.scoreboard.Scoreboard getScoreboard() { return scoreboard; }
 
     @Override public void setWorldBorder(org.bukkit.WorldBorder border) {}
 

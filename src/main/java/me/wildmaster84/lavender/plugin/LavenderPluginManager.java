@@ -352,6 +352,13 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
                 if (depLoader != null) depLoaders.add(depLoader);
             }
         }
+        List<String> softDepend = desc.getSoftDepend();
+        if (softDepend != null) {
+            for (String depName : softDepend) {
+                PluginClassLoader depLoader = pluginClassLoaders.get(depName.toLowerCase());
+                if (depLoader != null && !depLoaders.contains(depLoader)) depLoaders.add(depLoader);
+            }
+        }
 
         PluginClassLoader classLoader = new PluginClassLoader(
             classloaderUrls.toArray(new java.net.URL[0]),

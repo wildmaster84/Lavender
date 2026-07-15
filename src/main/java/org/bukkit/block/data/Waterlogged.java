@@ -1,6 +1,5 @@
-package org.bukkit.block;
+package org.bukkit.block.data;
 
-import org.bukkit.block.data.BlockData;
 
 public interface Waterlogged extends BlockData {
     boolean isWaterlogged();

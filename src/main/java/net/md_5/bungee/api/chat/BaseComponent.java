@@ -10,6 +10,16 @@ public abstract class BaseComponent {
 
     public BaseComponent[] getExtra() { return extra; }
     public void setExtra(BaseComponent[] extra) { this.extra = extra; }
+    public void addExtra(BaseComponent component) {
+        if (extra == null) {
+            extra = new BaseComponent[] { component };
+        } else {
+            BaseComponent[] newArr = new BaseComponent[extra.length + 1];
+            System.arraycopy(extra, 0, newArr, 0, extra.length);
+            newArr[extra.length] = component;
+            extra = newArr;
+        }
+    }
     public net.md_5.bungee.api.ChatColor getColor() { return color; }
     public void setColor(net.md_5.bungee.api.ChatColor color) { this.color = color; }
     public net.md_5.bungee.api.ChatColor[] getFormats() { return formats; }

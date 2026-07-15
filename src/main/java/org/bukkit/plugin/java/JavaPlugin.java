@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 public abstract class JavaPlugin implements Plugin, CommandExecutor, TabCompleter {
+    private static final Map<Class<?>, JavaPlugin> PLUGIN_INSTANCES = new java.util.concurrent.ConcurrentHashMap<>();
+
     private Server server;
     private PluginDescriptionFile description;
     private File dataFolder;
@@ -30,12 +32,31 @@ public abstract class JavaPlugin implements Plugin, CommandExecutor, TabComplete
 
     protected JavaPlugin() {}
 
+    public static JavaPlugin getPlugin(Class<? extends JavaPlugin> clazz) {
+        JavaPlugin plugin = PLUGIN_INSTANCES.get(clazz);
+        if (plugin != null) return plugin;
+        for (Map.Entry<Class<?>, JavaPlugin> entry : PLUGIN_INSTANCES.entrySet()) {
+            if (clazz.isAssignableFrom(entry.getKey())) return entry.getValue();
+        }
+        return null;
+    }
+
+    public static JavaPlugin getProvidingPlugin(Class<?> clazz) {
+        for (Map.Entry<Class<?>, JavaPlugin> entry : PLUGIN_INSTANCES.entrySet()) {
+            Class<?> pluginClass = entry.getKey();
+            ClassLoader pluginCl = pluginClass.getClassLoader();
+            if (pluginCl == clazz.getClassLoader()) return entry.getValue();
+        }
+        return null;
+    }
+
     public void init(Server server, PluginDescriptionFile description, File dataFolder, ClassLoader classLoader) {
         this.server = server;
         this.description = description;
         this.dataFolder = dataFolder;
         this.classLoader = classLoader;
         this.logger = Logger.getLogger(description.getName());
+        PLUGIN_INSTANCES.put(getClass(), this);
         if (!dataFolder.exists()) {
             dataFolder.mkdirs();
         }
@@ -86,7 +107,7 @@ public abstract class JavaPlugin implements Plugin, CommandExecutor, TabComplete
                 }
             }
         }
-        return registeredCommands.computeIfAbsent(name, n -> new PluginCommand(n, this));
+        return null;
     }
 
     @SuppressWarnings("unchecked")

@@ -108,6 +108,8 @@ public interface Server {
 
     BanList getBanList(BanList.Type type);
 
+    org.bukkit.command.PluginCommand getPluginCommand(String name);
+
     Spigot spigot();
 
     public class Spigot {

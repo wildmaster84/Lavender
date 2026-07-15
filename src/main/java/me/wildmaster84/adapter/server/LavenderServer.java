@@ -30,6 +30,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.scheduler.BukkitScheduler;
 
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.*;
@@ -47,6 +48,8 @@ public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implement
     private org.bukkit.plugin.messaging.Messenger messenger;
     public org.bukkit.command.CommandMap commandMap;
     private final org.bukkit.help.SimpleHelpMap helpMap = new org.bukkit.help.SimpleHelpMap();
+    private final org.bukkit.scoreboard.ScoreboardManager scoreboardManager = new me.wildmaster84.lavender.scoreboard.SimpleScoreboardManager();
+    public static Logger logger = LoggerFactory.getLogger(Lavender.BRAND_NAME);
 
     private final Map<UUID, LavenderWorld> worldsByUUID = new ConcurrentHashMap<>();
 
@@ -70,7 +73,7 @@ public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implement
     @Override
     public org.bukkit.help.HelpMap getHelpMap() { return helpMap; }
 
-    @Override public Logger getLogger() { return MinecraftServer.LOGGER; }
+    @Override public Logger getLogger() { return logger; }
 
     @Override
     public Player getPlayer(String name) {
@@ -249,10 +252,10 @@ public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implement
     @Override public String getVersion() { return Lavender.BRAND_NAME + " " + Lavender.VERSION_NAME + " (MC: " + Lavender.VERSION_NAME + ")"; }
     @Override public String getBukkitVersion() { return Lavender.VERSION_NAME; }
 
-    @Override public boolean isPrimaryThread() { return Thread.currentThread().getName().contains("main"); }
+    @Override public boolean isPrimaryThread() { return true; } // TODO: Add incase of plugin edge condition
     @Override public boolean getOnlineMode() { return lavender.getProperties().isOnlineMode(); }
 
-    @Override public long getWorldTickTime() { return 0; }
+    @Override public long getWorldTickTime() { return 0; } // TODO: Add world tick time
 
     @Override public void reload() {}
     @Override public void shutdown() { MinecraftServer.stopCleanly(); }
@@ -278,14 +281,12 @@ public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implement
 
     @Override public java.io.File getWorldContainer() { return new java.io.File("."); }
 
-    //@Override public io.papermc.paper.threadedregions.scheduler.AsyncScheduler getAsyncScheduler() { return asyncScheduler; }
-
     @Override public String getMinecraftVersion() { return Lavender.VERSION_NAME; }
     @Override public org.bukkit.packs.ResourcePack getServerResourcePack() { return null; }
     @Override public int getSimulationDistance() { return lavender.getProperties().getSimulationDistance(); }
     @Override public int getViewDistance() { return lavender.getProperties().getViewDistance(); }
-    @Override public int getSpawnRadius() { return 16; }
-    @Override public org.bukkit.scoreboard.ScoreboardManager getScoreboardManager() { return new SimpleScoreboardManager(); }
+    @Override public int getSpawnRadius() { return 16; } // TODO: setup spawn radius
+    @Override public org.bukkit.scoreboard.ScoreboardManager getScoreboardManager() { return scoreboardManager; }
     @Override public java.util.Iterator<org.bukkit.boss.BossBar> getBossBars() { return java.util.Collections.emptyIterator(); }
     @Override public boolean isResourcePackRequired() { return false; }
     @Override public org.bukkit.inventory.ItemFactory getItemFactory() { return new SimpleItemFactory(); }
@@ -450,6 +451,17 @@ public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implement
             @Override public boolean isBanned(String target) { return false; }
             @Override public void pardon(String target) {}
         };
+    }
+
+    @Override
+    public org.bukkit.command.PluginCommand getPluginCommand(String name) {
+        for (org.bukkit.plugin.Plugin plugin : pluginManager.getPlugins()) {
+            if (plugin instanceof org.bukkit.plugin.java.JavaPlugin jp) {
+                org.bukkit.command.PluginCommand cmd = jp.getCommand(name);
+                if (cmd != null) return cmd;
+            }
+        }
+        return null;
     }
 
     @Override

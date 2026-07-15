@@ -32,7 +32,7 @@ public final class Lavender {
     public static final int DATA_VERSION = 4786;
     public static final int PROTOCOL_VERSION = 775;
 
-    private static final Logger log = LoggerFactory.getLogger(BRAND_NAME);
+    private static final Logger log = LavenderServer.logger;
     private static final String[] BLOCK_ENTITY_KEYS = {
             "minecraft:chest", "minecraft:barrel", "minecraft:hopper",
             "minecraft:decorated_pot", "minecraft:structure_block", "minecraft:shulker_box",

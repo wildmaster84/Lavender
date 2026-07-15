@@ -5,6 +5,7 @@ import java.util.Set;
 
 public interface Scoreboard {
     Objective registerObjective(String name, Criteria criteria);
+    Objective registerNewObjective(String name, String criteria);
     Objective getObjective(String name);
     Objective getObjective(DisplaySlot slot);
     Set<Objective> getObjectives();
@@ -12,6 +13,7 @@ public interface Scoreboard {
     Set<String> getObjectiveNames();
     void unregisterObjective(Objective objective);
     Team registerTeam(String name);
+    Team registerNewTeam(String name);
     Team getTeam(String name);
     Set<Team> getTeams();
     Team getEntryTeam(String entry);

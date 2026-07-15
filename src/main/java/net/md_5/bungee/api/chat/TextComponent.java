@@ -6,6 +6,14 @@ public class TextComponent extends BaseComponent {
     public TextComponent() { this.text = ""; }
     public TextComponent(String text) { this.text = text; }
     public TextComponent(TextComponent original) { this.text = original.text; }
+    public TextComponent(BaseComponent... components) {
+        this.text = "";
+        if (components != null) {
+            StringBuilder sb = new StringBuilder();
+            for (BaseComponent c : components) sb.append(c.toPlainText());
+            this.text = sb.toString();
+        }
+    }
 
     public String getText() { return text; }
     public void setText(String text) { this.text = text; }
@@ -20,8 +28,8 @@ public class TextComponent extends BaseComponent {
         return sb.toString();
     }
 
-    public static TextComponent fromLegacyText(String message) {
-        return new TextComponent(message);
+    public static BaseComponent[] fromLegacyText(String message) {
+        return new BaseComponent[] { new TextComponent(message) };
     }
     public static BaseComponent[] fromLegacyText(String message, boolean color) {
         return new BaseComponent[] { new TextComponent(message) };
