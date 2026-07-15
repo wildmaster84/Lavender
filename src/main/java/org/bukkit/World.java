@@ -75,4 +75,9 @@ public interface World extends org.bukkit.generator.WorldInfo {
         THE_END,
         CUSTOM
     }
+
+    @FunctionalInterface
+    interface ChunkLoadCallback {
+        void callback(Chunk chunk);
+    }
 }

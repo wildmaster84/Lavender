@@ -7,4 +7,21 @@ public class EntityPotionEffectEvent extends EntityEvent {
     public EntityPotionEffectEvent(Entity entity) { super(entity); }
     @Override public org.bukkit.event.HandlerList getHandlers() { return HANDLER_LIST; }
     public static org.bukkit.event.HandlerList getHandlerList() { return HANDLER_LIST; }
+
+    public enum Cause {
+        POTION_SPLASH,
+        POTION_DRINK,
+        ARROW,
+        BEACON,
+        ATTACK,
+        COMMAND,
+        CONDUIT,
+        WITHER_ROSE,
+        TOTEM,
+        DOLPHIN_GRACE,
+        UNKNOWN,
+        AREA_EFFECT_CLOUD,
+        SPIDER_SPAWN,
+        PLUGIN
+    }
 }

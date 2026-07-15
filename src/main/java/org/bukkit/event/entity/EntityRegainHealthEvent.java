@@ -8,4 +8,18 @@ public class EntityRegainHealthEvent extends EntityEvent {
     public double getAmount() { return 0; }
     @Override public org.bukkit.event.HandlerList getHandlers() { return HANDLER_LIST; }
     public static org.bukkit.event.HandlerList getHandlerList() { return HANDLER_LIST; }
+
+    public enum RegainReason {
+        REGEN,
+        SATIATED,
+        EATING,
+        ENDER_CRYSTAL,
+        MAGIC_REGEN,
+        MAGIC,
+        WITHER,
+        WITHER_SPAWN,
+        TOTEM,
+        ARROW,
+        CUSTOM
+    }
 }

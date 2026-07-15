@@ -7,4 +7,14 @@ public class BlockIgniteEvent extends BlockEvent {
     public BlockIgniteEvent(Block block) { super(block); }
     @Override public org.bukkit.event.HandlerList getHandlers() { return HANDLER_LIST; }
     public static org.bukkit.event.HandlerList getHandlerList() { return HANDLER_LIST; }
+
+    public enum IgniteCause {
+        FLINT_AND_STEEL,
+        FIREBALL,
+        LIGHTNING,
+        LAVA,
+        SPREAD,
+        ENDER_CRYSTAL,
+        EXPLOSION
+    }
 }

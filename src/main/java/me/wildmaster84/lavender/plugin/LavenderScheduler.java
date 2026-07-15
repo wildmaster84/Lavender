@@ -154,6 +154,48 @@ public class LavenderScheduler implements BukkitScheduler {
         return tasks.containsKey(taskId);
     }
 
+    @Override
+    public boolean isQueued(int taskId) {
+        return tasks.containsKey(taskId);
+    }
+
+    @Override
+    public void cancelTask(int taskId) {
+        Object task = tasks.remove(taskId);
+        taskOwners.remove(taskId);
+        if (task != null) cancelTask(taskId, task);
+    }
+
+    @Override
+    public int scheduleSyncDelayedTask(Plugin plugin, Runnable task) {
+        return scheduleSync(plugin, task, 0, -1).getTaskId();
+    }
+
+    @Override
+    public int scheduleSyncDelayedTask(Plugin plugin, Runnable task, long delayTicks) {
+        return scheduleSync(plugin, task, delayTicks, -1).getTaskId();
+    }
+
+    @Override
+    public int scheduleSyncRepeatingTask(Plugin plugin, Runnable task, long delayTicks, long periodTicks) {
+        return scheduleSync(plugin, task, delayTicks, periodTicks).getTaskId();
+    }
+
+    @Override
+    public int scheduleAsyncDelayedTask(Plugin plugin, Runnable task) {
+        return scheduleAsync(plugin, task, 0, -1).getTaskId();
+    }
+
+    @Override
+    public int scheduleAsyncDelayedTask(Plugin plugin, Runnable task, long delayTicks) {
+        return scheduleAsync(plugin, task, delayTicks, -1).getTaskId();
+    }
+
+    @Override
+    public int scheduleAsyncRepeatingTask(Plugin plugin, Runnable task, long delayTicks, long periodTicks) {
+        return scheduleAsync(plugin, task, delayTicks, periodTicks).getTaskId();
+    }
+
     private static class LavenderTask implements BukkitTask {
         private final int taskId;
         private final Plugin owner;

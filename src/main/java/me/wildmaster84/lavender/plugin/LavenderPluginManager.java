@@ -35,6 +35,7 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
     private final List<EventListenerEntry> registeredListeners = new CopyOnWriteArrayList<>();
     private final Map<Class<? extends Event>, List<EventListenerEntry>> eventIndex = new ConcurrentHashMap<>();
     private volatile boolean indexDirty = true;
+    private final Map<String, PluginClassLoader> pluginClassLoaders = new LinkedHashMap<>();
     private final List<String> failedPlugins = new ArrayList<>();
     private static final Logger logger = LoggerFactory.getLogger("Lavender-Plugins");
 
@@ -343,10 +344,21 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         Collections.addAll(classloaderUrls, getLibraryUrls());
         Collections.addAll(classloaderUrls, resolvePluginLibraries(desc));
 
-        java.net.URLClassLoader classLoader = new java.net.URLClassLoader(
+        List<PluginClassLoader> depLoaders = new ArrayList<>();
+        List<String> depend = desc.getDepend();
+        if (depend != null) {
+            for (String depName : depend) {
+                PluginClassLoader depLoader = pluginClassLoaders.get(depName.toLowerCase());
+                if (depLoader != null) depLoaders.add(depLoader);
+            }
+        }
+
+        PluginClassLoader classLoader = new PluginClassLoader(
             classloaderUrls.toArray(new java.net.URL[0]),
-            getClass().getClassLoader()
+            getClass().getClassLoader(),
+            depLoaders
         );
+        pluginClassLoaders.put(desc.getName().toLowerCase(), classLoader);
 
         Class<?> mainClass = classLoader.loadClass(desc.getMain());
         if (!JavaPlugin.class.isAssignableFrom(mainClass)) {
@@ -403,7 +415,18 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
     }
 
     private void registerMinestomCommand(net.minestom.server.command.CommandManager cm, String name, org.bukkit.command.Command cmd) {
-        net.minestom.server.command.builder.Command msCmd = new net.minestom.server.command.builder.Command(name);
+        java.util.List<String> bukkitAliases = cmd.getAliases();
+        java.util.List<String> validAliases = new java.util.ArrayList<>();
+        if (bukkitAliases != null) {
+            for (String alias : bukkitAliases) {
+                if (alias.contains(":")) continue;
+                if (alias.equals(name)) continue;
+                if (cm.getCommand(alias) != null) continue;
+                validAliases.add(alias);
+            }
+        }
+        net.minestom.server.command.builder.Command msCmd = new net.minestom.server.command.builder.Command(
+            name, validAliases.toArray(new String[0]));
 
         java.util.function.BiConsumer<net.minestom.server.command.CommandSender, String[]> executor = (sender, args) -> {
             org.bukkit.command.CommandSender bukkitSender = wrapSender(sender);
@@ -416,7 +439,8 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
 
         msCmd.setDefaultExecutor((sender, context) -> {
             String input = context.getInput();
-            if (input.trim().length() > name.length()) return;
+            String usedAlias = input.trim().split(" ")[0];
+            if (input.trim().length() > usedAlias.length()) return;
             executor.accept(sender, new String[0]);
         });
 
@@ -505,6 +529,7 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
                 if (entry.executor != null) {
                     entry.executor.execute(entry.listener, event);
                 } else if (entry.method != null) {
+                    entry.method.setAccessible(true);
                     entry.method.invoke(entry.listener, event);
                 }
             } catch (Throwable e) {

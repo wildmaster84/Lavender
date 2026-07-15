@@ -9,6 +9,32 @@ public class CreatureSpawnEvent extends EntityEvent {
     public static org.bukkit.event.HandlerList getHandlerList() { return HANDLER_LIST; }
 
     public enum SpawnReason {
-        CUSTOM
+        CUSTOM,
+        NATURAL,
+        SPAWNER,
+        SPAWNER_EGG,
+        BUILD_IRONGOLEM,
+        BUILD_SNOWMAN,
+        BUILD_WITHER,
+        SLIME_SPLIT,
+        REINFORCEMENT,
+        MOUNT,
+        JOCKEY,
+        BREEDING,
+        OCELOT_BABY,
+        INFECTION,
+        CURED,
+        VILLAGE_DEFENSE,
+        VILLAGE_INVASION,
+        TRAP,
+        DISPENSE_EGG,
+        SHEARED,
+        SHOULDER_ENTITY,
+        PATROL,
+        BEEHIVE,
+        POTION,
+        DUPLICATION,
+        COMMAND,
+        DEFAULT
     }
 }

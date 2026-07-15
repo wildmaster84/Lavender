@@ -71,6 +71,7 @@ public interface Server {
     org.bukkit.packs.ResourcePack getServerResourcePack();
     int getSimulationDistance();
     int getViewDistance();
+    int getSpawnRadius();
     org.bukkit.scoreboard.ScoreboardManager getScoreboardManager();
     java.util.Iterator<org.bukkit.boss.BossBar> getBossBars();
     boolean isResourcePackRequired();
@@ -104,4 +105,21 @@ public interface Server {
     org.bukkit.block.data.BlockData createBlockData(String data);
     org.bukkit.block.data.BlockData createBlockData(org.bukkit.Material material);
     org.bukkit.block.data.BlockData createBlockData(org.bukkit.Material material, String extra);
+
+    BanList getBanList(BanList.Type type);
+
+    Spigot spigot();
+
+    public class Spigot {
+        public org.bukkit.configuration.file.YamlConfiguration getConfig() { return new org.bukkit.configuration.file.YamlConfiguration(); }
+        public void restart() {}
+        public void broadcast(net.md_5.bungee.api.chat.BaseComponent component) {}
+        public void broadcast(net.md_5.bungee.api.chat.BaseComponent... components) {}
+        public boolean reloadCommandAliases() { return false; }
+        public String getColoredConsoleSender() { return null; }
+        public void broadcast(net.kyori.adventure.text.Component message) {}
+        public void broadcast(net.kyori.adventure.text.Component message, String permission) {}
+        public java.util.Collection<? extends org.bukkit.command.CommandSender> getOnlineCommandSenders() { return java.util.Collections.emptyList(); }
+        public java.util.Collection<? extends org.bukkit.command.ConsoleCommandSender> getConsoleCommandSenders() { return java.util.Collections.emptyList(); }
+    }
 }

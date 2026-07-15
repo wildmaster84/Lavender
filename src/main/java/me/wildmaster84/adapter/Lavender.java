@@ -29,7 +29,7 @@ public final class Lavender {
 
     public static final String BRAND_NAME = "Lavender";
     public static final String VERSION_NAME = "26.1.2";
-    public static final int DATA_VERSION = 4790;
+    public static final int DATA_VERSION = 4786;
     public static final int PROTOCOL_VERSION = 775;
 
     private static final Logger log = LoggerFactory.getLogger(BRAND_NAME);
@@ -122,6 +122,7 @@ public final class Lavender {
 
         for (LavenderWorld w : pendingWorlds) {
             ((LavenderServer) server).registerWorld(w);
+            ((LavenderServer) server).getPluginManager().callEvent(new org.bukkit.event.world.WorldLoadEvent(w));
         }
         pendingWorlds.clear();
         log.info("Registered {} worlds after plugin load", ((LavenderServer) server).getWorlds().size());

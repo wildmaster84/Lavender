@@ -7,4 +7,10 @@ public class PortalCreateEvent extends WorldEvent {
     public PortalCreateEvent(World world) { super(world); }
     @Override public org.bukkit.event.HandlerList getHandlers() { return HANDLER_LIST; }
     public static org.bukkit.event.HandlerList getHandlerList() { return HANDLER_LIST; }
+
+    public enum CreateReason {
+        FIRE,
+        NETHER_PAIR,
+        END_PLATFORM
+    }
 }

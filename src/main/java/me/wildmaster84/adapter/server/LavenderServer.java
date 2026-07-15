@@ -284,6 +284,7 @@ public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implement
     @Override public org.bukkit.packs.ResourcePack getServerResourcePack() { return null; }
     @Override public int getSimulationDistance() { return lavender.getProperties().getSimulationDistance(); }
     @Override public int getViewDistance() { return lavender.getProperties().getViewDistance(); }
+    @Override public int getSpawnRadius() { return 16; }
     @Override public org.bukkit.scoreboard.ScoreboardManager getScoreboardManager() { return new SimpleScoreboardManager(); }
     @Override public java.util.Iterator<org.bukkit.boss.BossBar> getBossBars() { return java.util.Collections.emptyIterator(); }
     @Override public boolean isResourcePackRequired() { return false; }
@@ -439,5 +440,33 @@ public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implement
     @Override
     public org.bukkit.block.data.BlockData createBlockData(org.bukkit.Material material, String extra) {
         return new SimpleBlockData(material, extra);
+    }
+
+    @Override
+    public org.bukkit.BanList getBanList(org.bukkit.BanList.Type type) {
+        return new org.bukkit.BanList() {
+            @Override public org.bukkit.BanEntry getBanEntry(String target) { return null; }
+            @Override public void addBan(String target, String reason, java.util.Date expires, String source) {}
+            @Override public boolean isBanned(String target) { return false; }
+            @Override public void pardon(String target) {}
+        };
+    }
+
+    @Override
+    public org.bukkit.Server.Spigot spigot() {
+        return new org.bukkit.Server.Spigot() {
+            @Override
+            public void broadcast(net.md_5.bungee.api.chat.BaseComponent component) {
+                broadcast(new net.md_5.bungee.api.chat.BaseComponent[]{component});
+            }
+
+            @Override
+            public void broadcast(net.md_5.bungee.api.chat.BaseComponent... components) {
+                net.kyori.adventure.text.Component adventure = org.bukkit.entity.Player.bungeeToAdventureStatic(components);
+                for (org.bukkit.entity.Player p : getOnlinePlayers()) {
+                    p.sendMessage(adventure);
+                }
+            }
+        };
     }
 }

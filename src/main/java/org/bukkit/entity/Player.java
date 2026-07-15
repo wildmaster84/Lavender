@@ -255,6 +255,10 @@ public interface Player extends HumanEntity, org.bukkit.OfflinePlayer, org.bukki
     org.bukkit.entity.Entity releaseLeftShoulderEntity();
     org.bukkit.entity.Entity releaseRightShoulderEntity();
 
+    static net.kyori.adventure.text.Component bungeeToAdventureStatic(net.md_5.bungee.api.chat.BaseComponent[] components) {
+        return Spigot.bungeeToAdventure(components);
+    }
+
     class Spigot {
         private Player player;
 
@@ -291,19 +295,117 @@ public interface Player extends HumanEntity, org.bukkit.OfflinePlayer, org.bukki
             send(type, components);
         }
 
+        public void sendMessage(net.md_5.bungee.api.ChatMessageType type, net.md_5.bungee.api.chat.BaseComponent component) {
+            send(type, new net.md_5.bungee.api.chat.BaseComponent[]{component});
+        }
+
         private void send(net.md_5.bungee.api.ChatMessageType type, net.md_5.bungee.api.chat.BaseComponent[] components) {
             Player p = player();
-            StringBuilder sb = new StringBuilder();
+            net.kyori.adventure.text.Component adventure = bungeeToAdventure(components);
+            if (type == net.md_5.bungee.api.ChatMessageType.ACTION_BAR) {
+                p.sendActionBar(adventure);
+            } else {
+                p.sendMessage(adventure);
+            }
+        }
+
+        static net.kyori.adventure.text.Component bungeeToAdventure(net.md_5.bungee.api.chat.BaseComponent[] components) {
+            net.kyori.adventure.text.Component result = net.kyori.adventure.text.Component.empty();
             for (net.md_5.bungee.api.chat.BaseComponent c : components) {
-                if (c instanceof net.md_5.bungee.api.chat.TextComponent tc) {
-                    sb.append(tc.getText());
+                result = result.append(bungeeToAdventure(c));
+            }
+            return result;
+        }
+
+        static net.kyori.adventure.text.Component bungeeToAdventure(net.md_5.bungee.api.chat.BaseComponent component) {
+            net.kyori.adventure.text.Component result;
+            if (component instanceof net.md_5.bungee.api.chat.TextComponent tc) {
+                result = net.kyori.adventure.text.Component.text(tc.getText());
+            } else {
+                result = adapterComponentToAdventure(component);
+            }
+            net.md_5.bungee.api.ChatColor color = component.getColor();
+            if (color != null) {
+                switch (color) {
+                    case BLACK -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.BLACK);
+                    case DARK_BLUE -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.DARK_BLUE);
+                    case DARK_GREEN -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.DARK_GREEN);
+                    case DARK_AQUA -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.DARK_AQUA);
+                    case DARK_RED -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.DARK_RED);
+                    case DARK_PURPLE -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.DARK_PURPLE);
+                    case GOLD -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.GOLD);
+                    case GRAY -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.GRAY);
+                    case DARK_GRAY -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.DARK_GRAY);
+                    case BLUE -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.BLUE);
+                    case GREEN -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.GREEN);
+                    case AQUA -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.AQUA);
+                    case RED -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.RED);
+                    case LIGHT_PURPLE -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.LIGHT_PURPLE);
+                    case YELLOW -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.YELLOW);
+                    case WHITE -> result = result.color(net.kyori.adventure.text.format.NamedTextColor.WHITE);
+                    default -> {}
                 }
             }
-            String text = sb.toString();
-            if (type == net.md_5.bungee.api.ChatMessageType.ACTION_BAR) {
-                p.sendActionBar(net.kyori.adventure.text.Component.text(text));
-            } else {
-                p.sendMessage(text);
+            if (component.getFormats() != null) {
+                for (net.md_5.bungee.api.ChatColor format : component.getFormats()) {
+                    switch (format) {
+                        case BOLD -> result = result.decorate(net.kyori.adventure.text.format.TextDecoration.BOLD);
+                        case ITALIC -> result = result.decorate(net.kyori.adventure.text.format.TextDecoration.ITALIC);
+                        case UNDERLINE -> result = result.decorate(net.kyori.adventure.text.format.TextDecoration.UNDERLINED);
+                        case STRIKETHROUGH -> result = result.decorate(net.kyori.adventure.text.format.TextDecoration.STRIKETHROUGH);
+                        case MAGIC -> result = result.decorate(net.kyori.adventure.text.format.TextDecoration.OBFUSCATED);
+                        default -> {}
+                    }
+                }
+            }
+            if (component.getClickEvent() != null) {
+                net.md_5.bungee.api.chat.ClickEvent ce = component.getClickEvent();
+                net.kyori.adventure.text.event.ClickEvent adventureClick = switch (ce.getAction()) {
+                    case OPEN_URL -> net.kyori.adventure.text.event.ClickEvent.openUrl(ce.getValue());
+                    case OPEN_FILE -> net.kyori.adventure.text.event.ClickEvent.openUrl(ce.getValue());
+                    case RUN_COMMAND -> net.kyori.adventure.text.event.ClickEvent.runCommand(ce.getValue());
+                    case SUGGEST_COMMAND -> net.kyori.adventure.text.event.ClickEvent.suggestCommand(ce.getValue());
+                    case CHANGE_PAGE -> net.kyori.adventure.text.event.ClickEvent.changePage(Integer.parseInt(ce.getValue()));
+                    case COPY_TO_CLIPBOARD -> net.kyori.adventure.text.event.ClickEvent.copyToClipboard(ce.getValue());
+                };
+                result = result.clickEvent(adventureClick);
+            }
+            if (component.getHoverEvent() != null) {
+                net.md_5.bungee.api.chat.HoverEvent he = component.getHoverEvent();
+                if (he.getAction() == net.md_5.bungee.api.chat.HoverEvent.Action.SHOW_TEXT && he.getValue() != null) {
+                    net.kyori.adventure.text.Component hoverContent = bungeeToAdventure(he.getValue());
+                    result = result.hoverEvent(net.kyori.adventure.text.event.HoverEvent.showText(hoverContent));
+                }
+            }
+            if (component.getExtra() != null) {
+                for (net.md_5.bungee.api.chat.BaseComponent child : component.getExtra()) {
+                    result = result.append(bungeeToAdventure(child));
+                }
+            }
+            return result;
+        }
+
+        static net.kyori.adventure.text.Component adapterComponentToAdventure(net.md_5.bungee.api.chat.BaseComponent component) {
+            try {
+                String className = component.getClass().getName();
+                if (!className.contains("AdapterComponent")) {
+                    return net.kyori.adventure.text.Component.empty();
+                }
+                ClassLoader pluginCl = component.getClass().getClassLoader();
+                Class<?> gsonSerializerClass = Class.forName("com.sk89q.worldedit.util.formatting.text.serializer.gson.GsonComponentSerializer", true, pluginCl);
+                java.lang.reflect.Field instanceField = gsonSerializerClass.getField("INSTANCE");
+                Object serializer = instanceField.get(null);
+                Class<?> weComponentClass = Class.forName("com.sk89q.worldedit.util.formatting.text.Component", true, pluginCl);
+                java.lang.reflect.Field componentField = component.getClass().getDeclaredField("component");
+                componentField.setAccessible(true);
+                Object weComponent = componentField.get(component);
+                if (weComponent == null) return net.kyori.adventure.text.Component.empty();
+                java.lang.reflect.Method serializeMethod = gsonSerializerClass.getMethod("serialize", weComponentClass);
+                String json = (String) serializeMethod.invoke(serializer, weComponent);
+                if (json == null || json.isEmpty()) return net.kyori.adventure.text.Component.empty();
+                return net.kyori.adventure.text.serializer.gson.GsonComponentSerializer.gson().deserialize(json);
+            } catch (Exception e) {
+                return net.kyori.adventure.text.Component.empty();
             }
         }
 
