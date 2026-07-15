@@ -14,26 +14,33 @@ public class Entity {
     }
 
     public EntityType<?> getType() {
-        return null;
+        return new EntityType<>(minestomEntity.getEntityType());
     }
 
     public org.bukkit.entity.Entity getBukkitEntity() {
+        if (minestomEntity instanceof net.minestom.server.entity.Player msPlayer) {
+            org.bukkit.Server bukkitServer = org.bukkit.Bukkit.getServer();
+            if (bukkitServer instanceof me.wildmaster84.adapter.server.LavenderServer ls) {
+                return me.wildmaster84.adapter.player.LavenderPlayer.wrap(msPlayer, ls);
+            }
+        }
+        org.bukkit.Server bukkitServer = org.bukkit.Bukkit.getServer();
+        if (bukkitServer instanceof me.wildmaster84.adapter.server.LavenderServer ls) {
+            return new me.wildmaster84.adapter.entity.LavenderEntity(minestomEntity, ls);
+        }
         return null;
     }
 
     public boolean save(net.minecraft.world.level.storage.ValueOutput output) {
-        return false;
+        return true;
     }
 
     public void saveWithoutId(net.minecraft.world.level.storage.ValueOutput output) {
     }
 
     public Vec3 getPosition(float partialTicks) {
-        return new Vec3(
-            minestomEntity.getPosition().x(),
-            minestomEntity.getPosition().y(),
-            minestomEntity.getPosition().z()
-        );
+        net.minestom.server.coordinate.Pos pos = minestomEntity.getPosition();
+        return new Vec3(pos.x(), pos.y(), pos.z());
     }
 
     public String getStringUUID() {

@@ -3,7 +3,7 @@ package me.wildmaster84.lavender.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.minestom.server.MinecraftServer;
+import me.wildmaster84.adapter.Lavender;
 
 import java.io.*;
 import java.net.URI;
@@ -18,13 +18,13 @@ import java.util.stream.Stream;
 
 public class VanillaDataPack {
 
-    private static final Logger log = LoggerFactory.getLogger("Lavender");
+    private static final Logger log = LoggerFactory.getLogger(Lavender.BRAND_NAME);
 
     private static final String MC_VERSION = getMinecraftVersion();
     private static final String VERSION_MANIFEST_URL = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
 
     private static String getMinecraftVersion() {
-        return MinecraftServer.VERSION_NAME;
+        return Lavender.VERSION_NAME;
     }
 
     private final Path runtimeDir;

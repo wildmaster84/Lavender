@@ -97,6 +97,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
         return new LevelChunk(minestomInstance, x, z);
     }
 
+    public LevelChunk getChunkNow(int x, int z) {
+        if (minestomInstance == null) return null;
+        if (!minestomInstance.isChunkLoaded(x, z)) return null;
+        return new LevelChunk(minestomInstance, x, z);
+    }
+
     public ChunkAccess getChunk(int x, int z, ChunkStatus status, boolean load) {
         if (minestomInstance == null) return new LevelChunk();
         if (!load && !minestomInstance.isChunkLoaded(x, z)) return null;
@@ -137,7 +143,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     public BlockEntity getBlockEntity(BlockPos pos) {
-        return null;
+        if (minestomInstance == null) return null;
+        net.minestom.server.instance.block.Block msBlock = minestomInstance.getBlock(pos.getX(), pos.getY(), pos.getZ());
+        if (msBlock == null || !msBlock.registry().isBlockEntity()) return null;
+        BlockEntity be = new BlockEntity(pos, new BlockState(Block.of(msBlock.defaultState()), msBlock));
+        be.setLevel(this);
+        return be;
     }
 
     public ServerChunkCache getChunkSource() {
@@ -148,7 +159,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
         if (server != null) {
             return server.registryAccess();
         }
-        return null;
+        return new me.wildmaster84.adapter.registry.LavenderRegistryAccess();
     }
 
     public MinecraftServer getServer() {
@@ -160,6 +171,8 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     public CraftServer getCraftServer() {
+        org.bukkit.Server bukkitServer = org.bukkit.Bukkit.getServer();
+        if (bukkitServer instanceof CraftServer cs) return cs;
         return null;
     }
 
@@ -188,6 +201,9 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     public void sendBlockUpdated(BlockPos pos, BlockState oldState, BlockState newState, int flags) {
+        if (minestomInstance == null) return;
+        net.minestom.server.instance.block.Block msBlock = newState != null ? newState.getMinestomBlock() : net.minestom.server.instance.block.Block.AIR;
+        minestomInstance.setBlock(pos.getX(), pos.getY(), pos.getZ(), msBlock);
     }
 
     public void updateNeighborsAt(BlockPos pos, Block block) {
@@ -200,6 +216,9 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     public void addFreshEntityWithPassengers(Entity entity, CreatureSpawnEvent.SpawnReason reason) {
+        if (minestomInstance == null) return;
+        net.minestom.server.entity.Entity msEntity = entity.getMinestomEntity();
+        msEntity.setInstance(minestomInstance);
     }
 
     public ResourceKey<?> dimension() {
@@ -207,7 +226,9 @@ public class ServerLevel extends Level implements WorldGenLevel {
     }
 
     public Holder<?> dimensionTypeRegistration() {
-        return null;
+        if (minestomInstance == null) return null;
+        net.minestom.server.world.DimensionType dt = minestomInstance.getCachedDimensionType();
+        return () -> dt;
     }
 
     public long getSeed() {

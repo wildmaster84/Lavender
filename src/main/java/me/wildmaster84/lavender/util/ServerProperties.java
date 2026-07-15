@@ -3,6 +3,8 @@ package me.wildmaster84.lavender.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import me.wildmaster84.adapter.Lavender;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,7 +13,7 @@ import java.util.Map;
 
 public class ServerProperties {
 
-    private static final Logger log = LoggerFactory.getLogger("Lavender");
+    private static final Logger log = LoggerFactory.getLogger(Lavender.BRAND_NAME);
 
     private final Path path;
     private final Map<String, String> properties = new LinkedHashMap<>();

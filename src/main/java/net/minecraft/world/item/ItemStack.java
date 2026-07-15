@@ -36,11 +36,14 @@ public class ItemStack {
     }
 
     public Component getItemName() {
-        return null;
+        net.kyori.adventure.text.Component displayName = minestomStack.get(net.minestom.server.component.DataComponents.CUSTOM_NAME);
+        if (displayName == null) displayName = minestomStack.get(net.minestom.server.component.DataComponents.ITEM_NAME);
+        if (displayName == null) displayName = net.kyori.adventure.text.Component.text(minestomStack.material().name());
+        return new net.minecraft.network.chat.MutableComponent(displayName);
     }
 
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
-        return null;
+        return InteractionResult.PASS;
     }
 
     public boolean isEmpty() {

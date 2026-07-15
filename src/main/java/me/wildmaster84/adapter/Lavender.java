@@ -27,7 +27,12 @@ import java.util.concurrent.*;
 
 public final class Lavender {
 
-    private static final Logger log = LoggerFactory.getLogger("Lavender");
+    public static final String BRAND_NAME = "Lavender";
+    public static final String VERSION_NAME = "26.1.2";
+    public static final int DATA_VERSION = 4790;
+    public static final int PROTOCOL_VERSION = 775;
+
+    private static final Logger log = LoggerFactory.getLogger(BRAND_NAME);
     private static final String[] BLOCK_ENTITY_KEYS = {
             "minecraft:chest", "minecraft:barrel", "minecraft:hopper",
             "minecraft:decorated_pot", "minecraft:structure_block", "minecraft:shulker_box",
@@ -92,7 +97,7 @@ public final class Lavender {
         createWorld();
 
         server = new LavenderServer(this);
-        server.setName("Lavender");
+        server.setName(BRAND_NAME);
         Bukkit.setServer(server);
 
         net.minecraft.server.dedicated.DedicatedServer.setInstance(new net.minecraft.server.dedicated.DedicatedServer());
@@ -168,6 +173,9 @@ public final class Lavender {
             }
         }).repeat(TaskSchedule.tick(1)).schedule();
 
+        scheduler.buildTask(me.wildmaster84.adapter.inventory.LavenderInventory::cleanStaleEntries)
+                .repeat(TaskSchedule.tick(600)).schedule();
+
         Runtime.getRuntime().addShutdownHook(Thread.ofVirtual().name("Lavender-Shutdown").unstarted(() -> {
             try { saveAllWorlds(); } catch (Throwable t) { log.error("Error saving worlds: {}", t.getMessage()); }
             try { ((LavenderServer) server).disableAllPlugins(); } catch (Throwable t) { log.error("Error disabling plugins: {}", t.getMessage()); }
@@ -239,7 +247,7 @@ public final class Lavender {
             public void publish(java.util.logging.LogRecord record) {
                 try {
                     String name = record.getLoggerName();
-                    if (name == null) name = "lavender";
+                    if (name == null) name = BRAND_NAME.toLowerCase();
                     Logger l = LoggerFactory.getLogger(name);
                     String msg = record.getMessage();
                     Throwable thrown = record.getThrown();

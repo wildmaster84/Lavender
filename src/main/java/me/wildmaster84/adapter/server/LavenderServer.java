@@ -63,7 +63,7 @@ public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implement
         this.messenger = new org.bukkit.plugin.messaging.StandardMessenger();
     }
 
-    @Override public String getName() { return "Lavender"; }
+    @Override public String getName() { return Lavender.BRAND_NAME; }
     @Override public void setName(String name) { MinecraftServer.setBrandName(name); }
     public org.bukkit.command.SimpleCommandMap getCommandMap() { return (org.bukkit.command.SimpleCommandMap) commandMap; }
 
@@ -243,11 +243,11 @@ public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implement
 
     @Override public int getPort() { return lavender.getProperties().getServerPort(); }
     @Override public String getIp() { return lavender.getProperties().getServerIp(); }
-    @Override public String getServerName() { return "Lavender"; }
+    @Override public String getServerName() { return Lavender.BRAND_NAME; }
     @Override public String getMotd() { return lavender.getProperties().getMotd(); }
     @Override public int getMaxPlayers() { return lavender.getProperties().getMaxPlayers(); }
-    @Override public String getVersion() { return "Lavender " + MinecraftServer.VERSION_NAME + " (MC: 1.26.1)"; }
-    @Override public String getBukkitVersion() { return MinecraftServer.VERSION_NAME; }
+    @Override public String getVersion() { return Lavender.BRAND_NAME + " " + Lavender.VERSION_NAME + " (MC: " + Lavender.VERSION_NAME + ")"; }
+    @Override public String getBukkitVersion() { return Lavender.VERSION_NAME; }
 
     @Override public boolean isPrimaryThread() { return Thread.currentThread().getName().contains("main"); }
     @Override public boolean getOnlineMode() { return lavender.getProperties().isOnlineMode(); }
@@ -280,7 +280,7 @@ public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implement
 
     //@Override public io.papermc.paper.threadedregions.scheduler.AsyncScheduler getAsyncScheduler() { return asyncScheduler; }
 
-    @Override public String getMinecraftVersion() { return MinecraftServer.VERSION_NAME; }
+    @Override public String getMinecraftVersion() { return Lavender.VERSION_NAME; }
     @Override public org.bukkit.packs.ResourcePack getServerResourcePack() { return null; }
     @Override public int getSimulationDistance() { return lavender.getProperties().getSimulationDistance(); }
     @Override public int getViewDistance() { return lavender.getProperties().getViewDistance(); }
@@ -290,7 +290,7 @@ public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implement
     @Override public org.bukkit.inventory.ItemFactory getItemFactory() { return new SimpleItemFactory(); }
 
     @Override public org.bukkit.plugin.ServicesManager getServicesManager() { return servicesManager; }
-    @Override public org.bukkit.UnsafeValues getUnsafe() { return new org.bukkit.UnsafeValues() { @Override public int getDataVersion() { return MinecraftServer.DATA_VERSION; } }; }
+    @Override public org.bukkit.UnsafeValues getUnsafe() { return new org.bukkit.UnsafeValues() { @Override public int getDataVersion() { return Lavender.DATA_VERSION; } }; }
     @Override public org.bukkit.plugin.messaging.Messenger getMessenger() { return messenger; }
 
     @Override

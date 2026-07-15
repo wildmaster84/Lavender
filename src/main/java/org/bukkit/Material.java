@@ -996,11 +996,15 @@ public enum Material implements Keyed {
 		return new me.wildmaster84.adapter.world.SimpleBlockData(this, state);
 	}
 
+	private static final java.util.Map<String, Material> MATCH_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+
 	public static Material matchMaterial(String name) {
 		if (name == null) return null;
-	    String cleaned = name.toUpperCase().replace(" ", "_").replace("MINECRAFT:", "");
-	    try { return Material.valueOf(cleaned); }
-	    catch (IllegalArgumentException e) { return null; }
+		return MATCH_CACHE.computeIfAbsent(name, n -> {
+			String cleaned = n.toUpperCase().replace(" ", "_").replace("MINECRAFT:", "");
+			try { return Material.valueOf(cleaned); }
+			catch (IllegalArgumentException e) { return null; }
+		});
 	}
 	
 	public static Material getMaterial(String name) {

@@ -7,18 +7,23 @@ import org.bukkit.Material;
 
 public class LavenderInventory implements org.bukkit.inventory.Inventory {
 
-    private static final java.util.Map<Inventory, LavenderInventory> REGISTRY = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final java.util.Map<Inventory, java.lang.ref.WeakReference<LavenderInventory>> REGISTRY = new java.util.concurrent.ConcurrentHashMap<>();
 
     public static LavenderInventory wrap(Inventory msInv) {
-        return REGISTRY.get(msInv);
+        java.lang.ref.WeakReference<LavenderInventory> ref = REGISTRY.get(msInv);
+        return ref != null ? ref.get() : null;
     }
 
     public static void register(Inventory msInv, LavenderInventory wrapper) {
-        REGISTRY.put(msInv, wrapper);
+        REGISTRY.put(msInv, new java.lang.ref.WeakReference<>(wrapper));
     }
 
     public static void unregister(Inventory msInv) {
         REGISTRY.remove(msInv);
+    }
+
+    public static void cleanStaleEntries() {
+        REGISTRY.entrySet().removeIf(e -> e.getValue().get() == null);
     }
 
     private final Inventory msInventory;

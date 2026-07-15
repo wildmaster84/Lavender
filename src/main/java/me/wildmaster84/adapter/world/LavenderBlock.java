@@ -8,6 +8,8 @@ import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 
 public class LavenderBlock implements org.bukkit.block.Block {
+    private static final java.util.Map<String, Material> BLOCK_MATERIAL_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+
     private final Instance instance;
     private final LavenderWorld world;
     private final int x, y, z;
@@ -42,10 +44,11 @@ public class LavenderBlock implements org.bukkit.block.Block {
         if (!isChunkLoaded()) return Material.AIR;
         Block msBlock = instance.getBlock(x, y, z);
         if (msBlock == null) return Material.AIR;
-        String name = msBlock.name();
-        String stripped = name.startsWith("minecraft:") ? name.substring(10) : name;
-        Material mat = Material.matchMaterial(stripped);
-        return mat != null ? mat : Material.AIR;
+        return BLOCK_MATERIAL_CACHE.computeIfAbsent(msBlock.name(), name -> {
+            String stripped = name.startsWith("minecraft:") ? name.substring(10) : name;
+            Material mat = Material.matchMaterial(stripped);
+            return mat != null ? mat : Material.AIR;
+        });
     }
 
     @Override
@@ -79,7 +82,7 @@ public class LavenderBlock implements org.bukkit.block.Block {
 
     @Override
     public org.bukkit.block.Block getRelative(int modX, int modY, int modZ) {
-        return new LavenderBlock(instance, world, x + modX, y + modY, z + modZ);
+        return world.getBlockAt(x + modX, y + modY, z + modZ);
     }
 
     @Override
@@ -108,8 +111,7 @@ public class LavenderBlock implements org.bukkit.block.Block {
         if (!isChunkLoaded()) return false;
         Block msBlock = instance.getBlock(x, y, z);
         if (msBlock == null) return false;
-        String name = msBlock.name();
-        return name.contains("water") || name.contains("lava");
+        return msBlock.registry().isLiquid();
     }
 
     @Override
@@ -163,9 +165,12 @@ public class LavenderBlock implements org.bukkit.block.Block {
         setType(blockData.getMaterial(), applyPhysics);
     }
 
+    private static final java.util.Map<Material, SimpleBlockData> BLOCK_DATA_CACHE = new java.util.concurrent.ConcurrentHashMap<>();
+
     @Override
     public org.bukkit.block.data.BlockData getBlockData() {
-        return new SimpleBlockData(getType());
+        Material type = getType();
+        return BLOCK_DATA_CACHE.computeIfAbsent(type, SimpleBlockData::new);
     }
 
     @Override

@@ -44,8 +44,8 @@ public final class Bukkit {
     //public static io.papermc.paper.threadedregions.scheduler.AsyncScheduler getAsyncScheduler() { return server.getAsyncScheduler(); }
     public static String getMinecraftVersion() { return server.getMinecraftVersion(); }
     public static org.bukkit.packs.ResourcePack getServerResourcePack() { return null; }
-    public static int getSimulationDistance() { return 8; }
-    public static int getViewDistance() { return 10; }
+    public static int getSimulationDistance() { return server.getSimulationDistance(); }
+    public static int getViewDistance() { return server.getViewDistance(); }
     public static org.bukkit.scoreboard.ScoreboardManager getScoreboardManager() { return server.getScoreboardManager(); }
     public static java.util.Iterator<org.bukkit.boss.BossBar> getBossBars() { return java.util.Collections.emptyIterator(); }
     public static org.bukkit.OfflinePlayer getOfflinePlayer(String name) { return server.getOfflinePlayer(name); }

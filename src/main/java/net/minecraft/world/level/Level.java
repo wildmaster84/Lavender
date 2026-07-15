@@ -31,11 +31,13 @@ public class Level implements LevelAccessor {
 
     @Override
     public BlockState getBlockState(BlockPos pos) {
+        if (this instanceof net.minecraft.server.level.ServerLevel sl) return sl.getBlockState(pos);
         return new BlockState();
     }
 
     @Override
     public boolean setBlock(BlockPos pos, BlockState state, int flags) {
+        if (this instanceof net.minecraft.server.level.ServerLevel sl) return sl.setBlock(pos, state, flags);
         return false;
     }
 
@@ -54,6 +56,7 @@ public class Level implements LevelAccessor {
 
     @Override
     public net.minecraft.world.level.chunk.ChunkSource getChunkSource() {
+        if (this instanceof net.minecraft.server.level.ServerLevel sl) return sl.getChunkSource();
         return null;
     }
 
@@ -64,26 +67,46 @@ public class Level implements LevelAccessor {
 
     @Override
     public net.minecraft.world.level.chunk.ChunkAccess getChunk(int x, int z) {
+        if (this instanceof net.minecraft.server.level.ServerLevel sl) return sl.getChunk(x, z);
         return null;
     }
 
     @Override
     public net.minecraft.world.level.chunk.ChunkAccess getChunkNow(int x, int z) {
+        if (this instanceof net.minecraft.server.level.ServerLevel sl) return sl.getChunkNow(x, z);
         return null;
     }
 
     @Override
     public boolean hasChunk(int x, int z) {
+        if (this instanceof net.minecraft.server.level.ServerLevel sl) {
+            net.minestom.server.instance.Instance inst = sl.getMinestomInstance();
+            return inst != null && inst.isChunkLoaded(x, z);
+        }
         return false;
     }
 
     @Override
     public net.minecraft.world.level.material.FluidState getFluidState(BlockPos pos) {
+        if (this instanceof net.minecraft.server.level.ServerLevel sl) {
+            net.minestom.server.instance.Instance inst = sl.getMinestomInstance();
+            if (inst != null) {
+                net.minestom.server.instance.block.Block block = inst.getBlock(pos.getX(), pos.getY(), pos.getZ());
+                return new net.minecraft.world.level.material.FluidState(block);
+            }
+        }
         return new net.minecraft.world.level.material.FluidState();
     }
 
     @Override
     public int getLightEmission(BlockPos pos) {
+        if (this instanceof net.minecraft.server.level.ServerLevel sl) {
+            net.minestom.server.instance.Instance inst = sl.getMinestomInstance();
+            if (inst != null) {
+                net.minestom.server.instance.block.Block block = inst.getBlock(pos.getX(), pos.getY(), pos.getZ());
+                return block != null ? (int) block.registry().lightEmission() : 0;
+            }
+        }
         return 0;
     }
 
@@ -99,6 +122,7 @@ public class Level implements LevelAccessor {
 
     @Override
     public BlockEntity getBlockEntity(BlockPos pos) {
+        if (this instanceof net.minecraft.server.level.ServerLevel sl) return sl.getBlockEntity(pos);
         return null;
     }
 }

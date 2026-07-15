@@ -45,7 +45,7 @@ public class LavenderChunk implements org.bukkit.Chunk {
     public Block getBlock(int x, int y, int z) {
         int worldX = this.x * 16 + x;
         int worldZ = this.z * 16 + z;
-        return new LavenderBlock(instance, world, worldX, y, worldZ);
+        return world.getBlockAt(worldX, y, worldZ);
     }
 
     @Override

@@ -14,9 +14,13 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class LavenderWorld extends org.bukkit.craftbukkit.CraftWorld {
+
+    private static final int BLOCK_CACHE_MAX = 8192;
+    private static final int CHUNK_CACHE_MAX = 1024;
 
     private final Instance instance;
     private final LavenderServer server;
@@ -25,6 +29,16 @@ public class LavenderWorld extends org.bukkit.craftbukkit.CraftWorld {
     private final Environment environment;
     private Location spawnLocation;
     private net.minecraft.server.level.ServerLevel serverLevel;
+    private final ConcurrentHashMap<Long, LavenderBlock> blockCache = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, LavenderChunk> chunkCache = new ConcurrentHashMap<>();
+
+    static long blockKey(int x, int y, int z) {
+        return ((long)(x & 0x3FFFFFF) << 38) | ((long)(y & 0xFFF) << 26) | (z & 0x3FFFFFF);
+    }
+
+    static long chunkKey(int x, int z) {
+        return ((long)x << 32) | (z & 0xFFFFFFFFL);
+    }
 
     public LavenderWorld(Instance instance, LavenderServer server, String name, long seed, Environment environment) {
         this.instance = instance;
@@ -111,7 +125,11 @@ public class LavenderWorld extends org.bukkit.craftbukkit.CraftWorld {
     }
     @Override public void setDifficulty(Difficulty difficulty) {}
     @Override public Environment getEnvironment() { return environment; }
-    @Override public WorldBorder getWorldBorder() { return new SimpleWorldBorder(); }
+    private WorldBorder worldBorder;
+    @Override public WorldBorder getWorldBorder() {
+        if (worldBorder == null) worldBorder = new SimpleWorldBorder();
+        return worldBorder;
+    }
 
     @Override
     public void save() {
@@ -166,7 +184,13 @@ public class LavenderWorld extends org.bukkit.craftbukkit.CraftWorld {
 
     @Override
     public org.bukkit.block.Block getBlockAt(int x, int y, int z) {
-        return new LavenderBlock(instance, this, x, y, z);
+        long key = blockKey(x, y, z);
+        LavenderBlock cached = blockCache.get(key);
+        if (cached != null) return cached;
+        if (blockCache.size() >= BLOCK_CACHE_MAX) blockCache.clear();
+        LavenderBlock block = new LavenderBlock(instance, this, x, y, z);
+        blockCache.put(key, block);
+        return block;
     }
 
     @Override
@@ -176,7 +200,13 @@ public class LavenderWorld extends org.bukkit.craftbukkit.CraftWorld {
 
     @Override
     public org.bukkit.Chunk getChunkAt(int x, int z) {
-        return new LavenderChunk(instance, this, x, z);
+        long key = chunkKey(x, z);
+        LavenderChunk cached = chunkCache.get(key);
+        if (cached != null) return cached;
+        if (chunkCache.size() >= CHUNK_CACHE_MAX) chunkCache.clear();
+        LavenderChunk chunk = new LavenderChunk(instance, this, x, z);
+        chunkCache.put(key, chunk);
+        return chunk;
     }
 
     @Override
@@ -190,7 +220,7 @@ public class LavenderWorld extends org.bukkit.craftbukkit.CraftWorld {
         org.bukkit.Chunk[] result = new org.bukkit.Chunk[chunks.size()];
         int i = 0;
         for (Chunk msChunk : chunks) {
-            result[i++] = new LavenderChunk(instance, this, msChunk.getChunkX(), msChunk.getChunkZ());
+            result[i++] = getChunkAt(msChunk.getChunkX(), msChunk.getChunkZ());
         }
         return result;
     }

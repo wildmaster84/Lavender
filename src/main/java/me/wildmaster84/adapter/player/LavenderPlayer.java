@@ -5,6 +5,7 @@ import java.util.UUID;
 import me.wildmaster84.adapter.inventory.LavenderInventory;
 import me.wildmaster84.adapter.inventory.LavenderInventoryView;
 import me.wildmaster84.adapter.inventory.PlayerInventoryView;
+import me.wildmaster84.adapter.Lavender;
 import me.wildmaster84.adapter.server.LavenderServer;
 import me.wildmaster84.adapter.world.LavenderWorld;
 import net.minestom.server.MinecraftServer;
@@ -20,7 +21,7 @@ import net.minestom.server.command.CommandManager;
 
 public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84.adapter.server.entity.CraftPlayer, org.bukkit.craftbukkit.entity.CraftPlayer {
 
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("Lavender");
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Lavender.BRAND_NAME);
     private static final java.util.Map<UUID, LavenderPlayer> cache = new java.util.concurrent.ConcurrentHashMap<>();
 
     public static LavenderPlayer wrap(Player player, LavenderServer server) {

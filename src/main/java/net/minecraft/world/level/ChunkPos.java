@@ -17,7 +17,17 @@ public class ChunkPos {
     }
 
     public static Stream<ChunkPos> rangeClosed(ChunkPos from, ChunkPos to) {
-        return Stream.empty();
+        int minX = Math.min(from.x, to.x);
+        int maxX = Math.max(from.x, to.x);
+        int minZ = Math.min(from.z, to.z);
+        int maxZ = Math.max(from.z, to.z);
+        java.util.List<ChunkPos> list = new java.util.ArrayList<>();
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                list.add(new ChunkPos(x, z));
+            }
+        }
+        return list.stream();
     }
 
     public int getMinBlockX() {

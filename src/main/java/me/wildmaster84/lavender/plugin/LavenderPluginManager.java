@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -32,6 +33,8 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
     private final File librariesDir;
     private final Map<String, Plugin> plugins = new LinkedHashMap<>();
     private final List<EventListenerEntry> registeredListeners = new CopyOnWriteArrayList<>();
+    private final Map<Class<? extends Event>, List<EventListenerEntry>> eventIndex = new ConcurrentHashMap<>();
+    private volatile boolean indexDirty = true;
     private final List<String> failedPlugins = new ArrayList<>();
     private static final Logger logger = LoggerFactory.getLogger("Lavender-Plugins");
 
@@ -54,9 +57,11 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         ensureBundledLibraries();
         org.bukkit.event.HandlerList.setUnregisterCallback(listener -> {
             registeredListeners.removeIf(e -> e.listener == listener);
+            indexDirty = true;
         });
         org.bukkit.event.HandlerList.setUnregisterPluginCallback(plugin -> {
             registeredListeners.removeIf(e -> e.plugin == plugin);
+            indexDirty = true;
         });
         org.bukkit.command.PluginCommand.setRegistrationCallback(pc -> {
             net.minestom.server.command.CommandManager cm = MinecraftServer.getCommandManager();
@@ -475,36 +480,64 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
             }
         }
         registeredListeners.sort(Comparator.comparingInt(e -> e.priority.getSlot()));
+        indexDirty = true;
     }
 
     @Override
     public void registerEvent(Class<? extends Event> event, Listener listener, EventPriority priority, EventExecutor executor, Plugin plugin) {
         registeredListeners.add(new EventListenerEntry(listener, executor, event, priority, plugin));
         registeredListeners.sort(Comparator.comparingInt(e -> e.priority.getSlot()));
+        indexDirty = true;
     }
 
     @Override
     public void registerEvent(Class<? extends Event> event, Listener listener, EventPriority priority, EventExecutor executor, Plugin plugin, boolean ignoreCancelled) {
         registeredListeners.add(new EventListenerEntry(listener, executor, event, priority, plugin));
         registeredListeners.sort(Comparator.comparingInt(e -> e.priority.getSlot()));
+        indexDirty = true;
     }
 
     @Override
     public void callEvent(Event event) {
-        for (EventListenerEntry entry : registeredListeners) {
-            if (entry.eventType.isInstance(event)) {
-                try {
-                    if (entry.executor != null) {
-                        entry.executor.execute(entry.listener, event);
-                    } else if (entry.method != null) {
-                        entry.method.invoke(entry.listener, event);
-                    }
-                } catch (Throwable e) {
-                    logger.warn("Could not pass event " + event.getEventName() +
-                        " to plugin " + entry.plugin.getName() + ": " + e.getMessage(), e);
+        List<EventListenerEntry> entries = getListenersFor(event.getClass());
+        for (EventListenerEntry entry : entries) {
+            try {
+                if (entry.executor != null) {
+                    entry.executor.execute(entry.listener, event);
+                } else if (entry.method != null) {
+                    entry.method.invoke(entry.listener, event);
                 }
+            } catch (Throwable e) {
+                logger.warn("Could not pass event " + event.getEventName() +
+                    " to plugin " + entry.plugin.getName() + ": " + e.getMessage(), e);
             }
         }
+    }
+
+    private List<EventListenerEntry> getListenersFor(Class<?> eventClass) {
+        if (indexDirty) {
+            rebuildIndex();
+        }
+        List<EventListenerEntry> result = eventIndex.get(eventClass);
+        if (result != null) return result;
+        // Fall back to scanning for supertype matches
+        List<EventListenerEntry> matched = new ArrayList<>();
+        for (EventListenerEntry entry : registeredListeners) {
+            if (entry.eventType.isAssignableFrom(eventClass)) {
+                matched.add(entry);
+            }
+        }
+        eventIndex.putIfAbsent((Class<? extends Event>) eventClass, matched);
+        return matched;
+    }
+
+    private synchronized void rebuildIndex() {
+        if (!indexDirty) return;
+        eventIndex.clear();
+        for (EventListenerEntry entry : registeredListeners) {
+            eventIndex.computeIfAbsent(entry.eventType, k -> new ArrayList<>()).add(entry);
+        }
+        indexDirty = false;
     }
 
     @Override

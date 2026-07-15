@@ -13,6 +13,6 @@ public class MinecraftServer {
     }
 
     public com.mojang.datafixers.DataFixer getFixerUpper() {
-        return null;
+        return net.minecraft.util.datafix.DataFixers.getDataFixer();
     }
 }

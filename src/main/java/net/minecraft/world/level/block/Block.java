@@ -68,11 +68,11 @@ public class Block {
     }
 
     public float getExplosionResistance() {
-        return 0;
+        return minestomBlock.registry().explosionResistance();
     }
 
     public float getFriction() {
-        return 0.6f;
+        return minestomBlock.registry().friction();
     }
 
     public StateDefinition<Block, BlockState> getStateDefinition() {
@@ -131,10 +131,12 @@ public class Block {
     }
 
     public boolean isPossibleToRespawnInThis() {
-        return false;
+        return minestomBlock.registry().isSolid();
     }
 
     public net.minecraft.world.item.Item asItem() {
-        return null;
+        net.minestom.server.item.Material mat = minestomBlock.registry().material();
+        if (mat == null) return null;
+        return new net.minecraft.world.item.Item(mat);
     }
 }

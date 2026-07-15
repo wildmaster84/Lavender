@@ -21,6 +21,6 @@ public class Item {
     }
 
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
-        return null;
+        return InteractionResult.PASS;
     }
 }

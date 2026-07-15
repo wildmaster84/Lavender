@@ -4,11 +4,13 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import me.wildmaster84.adapter.Lavender;
+
 import java.io.File;
 import java.util.UUID;
 
 public class PlayerDataStore {
-    private static final Logger log = LoggerFactory.getLogger("Lavender");
+    private static final Logger log = LoggerFactory.getLogger(Lavender.BRAND_NAME);
     private final File file;
     private YamlConfiguration config;
 
