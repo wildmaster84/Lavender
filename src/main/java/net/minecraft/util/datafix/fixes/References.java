@@ -14,6 +14,8 @@ public class References {
     public static final DSL.TypeReference LEVEL_DATA = createRef();
     public static final DSL.TypeReference OPTIONS = createRef();
     public static final DSL.TypeReference STRUCTURE = createRef();
+    public static final DSL.TypeReference BIOME = createRef();
+    public static final DSL.TypeReference ITEM_NAME = createRef();
 
     private static DSL.TypeReference createRef() {
         return new DSL.TypeReference() {
