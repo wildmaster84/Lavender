@@ -36,7 +36,6 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
     private final Map<Class<? extends Event>, List<EventListenerEntry>> eventIndex = new ConcurrentHashMap<>();
     private volatile boolean indexDirty = true;
     private final Map<String, PluginClassLoader> pluginClassLoaders = new LinkedHashMap<>();
-    private final List<String> failedPlugins = new ArrayList<>();
     private static final Logger logger = LoggerFactory.getLogger("Lavender-Plugins");
 
     private static final String[] BUNDLED_LIBRARIES = {
@@ -211,7 +210,6 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
                     plugins.put(name, plugin);
                 }
             } catch (Throwable e) {
-                failedPlugins.add(desc.getName());
                 logger.error("Failed to load plugin from " + jar.getName() + ": " + e.getMessage());
                 e.printStackTrace();
             }
@@ -220,13 +218,7 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         for (String name : loadOrder) {
             Plugin plugin = plugins.get(name);
             if (plugin == null) continue;
-            try {
-                enablePlugin(plugin);
-            } catch (Throwable e) {
-                failedPlugins.add(plugin.getName());
-                logger.error("Failed to enable plugin " + plugin.getName() + ": " + e.getMessage());
-                e.printStackTrace();
-            }
+            enablePlugin(plugin);
         }
 
         printPluginSummary();
@@ -238,29 +230,15 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         String reset = "\u001b[0m";
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Plugins (").append(plugins.size()).append(" loaded");
-        if (!failedPlugins.isEmpty()) {
-            sb.append(", ").append(failedPlugins.size()).append(" failed");
-        }
-        sb.append("): ");
-
+        sb.append("Plugins (").append(plugins.size()).append("): ");
         boolean first = true;
         for (Plugin p : plugins.values()) {
             if (!first) sb.append(", ");
             first = false;
-            sb.append(green).append(p.getName()).append(reset);
-        }
-        for (String name : failedPlugins) {
-            if (!first) sb.append(", ");
-            first = false;
-            sb.append(red).append(name).append(reset);
+            sb.append(p.isEnabled() ? green : red).append(p.getName()).append(reset);
         }
 
         logger.info(sb.toString());
-    }
-
-    public List<String> getFailedPlugins() {
-        return failedPlugins;
     }
 
     private List<String> topologicalSort(Map<String, PluginDescriptionFile> descs) {
@@ -360,10 +338,15 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
             }
         }
 
+        File dataFolder = new File(pluginsDir, desc.getName());
         PluginClassLoader classLoader = new PluginClassLoader(
             classloaderUrls.toArray(new java.net.URL[0]),
             getClass().getClassLoader(),
-            depLoaders
+            depLoaders,
+            server,
+            desc,
+            dataFolder,
+            jarFile
         );
         pluginClassLoaders.put(desc.getName().toLowerCase(), classLoader);
 
@@ -374,13 +357,12 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         }
 
         JavaPlugin plugin = (JavaPlugin) mainClass.getDeclaredConstructor().newInstance();
-        File dataFolder = new File(pluginsDir, desc.getName());
-        plugin.init(server, desc, dataFolder, classLoader, jarFile);
 
         try {
             plugin.onLoad();
         } catch (Throwable t) {
             logger.error("Error in onLoad() for plugin " + desc.getName() + ": " + t.getMessage(), t);
+            ((JavaPlugin) plugin).setEnabled(false);
         }
 
         if (desc.getCommands() != null) {
@@ -401,9 +383,13 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
     @Override
     public void enablePlugin(Plugin plugin) {
         if (plugin.isEnabled()) return;
-        ((JavaPlugin) plugin).setEnabled(true);
-        plugin.onEnable();
-        registerPluginCommands();
+        try {
+            plugin.onEnable();
+            ((JavaPlugin) plugin).setEnabled(true);
+            registerPluginCommands();
+        } catch (Throwable t) {
+            logger.error("Error enabling plugin " + plugin.getName() + ": " + t.getMessage(), t);
+        }
     }
 
     private void registerPluginCommands() {
@@ -492,7 +478,11 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
     public void disablePlugin(Plugin plugin) {
         if (!plugin.isEnabled()) return;
         ((JavaPlugin) plugin).setEnabled(false);
-        plugin.onDisable();
+        try {
+            plugin.onDisable();
+        } catch (Throwable t) {
+            logger.error("Error disabling plugin " + plugin.getName() + ": " + t.getMessage(), t);
+        }
     }
 
     @Override

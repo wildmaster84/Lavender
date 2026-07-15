@@ -70,17 +70,13 @@ public class LavenderCommands {
         cmd.setDefaultExecutor((sender, context) -> {
             PluginManager pm = server.getPluginManager();
             Plugin[] loadedPlugins = pm.getPlugins();
-            List<String> failed = (pm instanceof LavenderPluginManager)
-                    ? ((LavenderPluginManager) pm).getFailedPlugins()
-                    : List.of();
 
-            if (loadedPlugins.length == 0 && failed.isEmpty()) {
+            if (loadedPlugins.length == 0) {
                 sender.sendMessage("No plugins loaded.");
                 return;
             }
 
-            int total = loadedPlugins.length + failed.size();
-            Component header = Component.text("Plugins (" + total + "): ", NamedTextColor.WHITE);
+            Component header = Component.text("Plugins (" + loadedPlugins.length + "): ", NamedTextColor.WHITE);
 
             Component separator = Component.text(", ", NamedTextColor.GRAY);
             Component body = Component.empty();
@@ -91,7 +87,7 @@ public class LavenderCommands {
                 first = false;
 
                 Component hover = Component.text()
-                        .append(Component.text(p.getName(), NamedTextColor.GREEN))
+                        .append(Component.text(p.getName(), p.isEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED))
                         .append(Component.text("\nVersion: ", NamedTextColor.GRAY))
                         .append(Component.text(p.getDescription().getVersion(), NamedTextColor.WHITE))
                         .append(Component.text("\nAuthors: ", NamedTextColor.GRAY))
@@ -102,24 +98,9 @@ public class LavenderCommands {
                                 : Component.text("Disabled", NamedTextColor.RED))
                         .build();
 
-                body = body.append(Component.text(p.getName(), NamedTextColor.GREEN)
+                body = body.append(Component.text(p.getName(), p.isEnabled() ? NamedTextColor.GREEN : NamedTextColor.RED)
                         .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, hover)));
             }
-
-            for (String name : failed) {
-                if (!first) body = body.append(separator);
-                first = false;
-
-                Component hover = Component.text()
-                        .append(Component.text(name, NamedTextColor.RED))
-                        .append(Component.text("\nStatus: ", NamedTextColor.GRAY))
-                        .append(Component.text("Failed to load", NamedTextColor.RED))
-                        .build();
-
-                body = body.append(Component.text(name, NamedTextColor.RED)
-                        .hoverEvent(HoverEvent.hoverEvent(HoverEvent.Action.SHOW_TEXT, hover)));
-            }
-
             sender.sendMessage(header.append(body));
         });
         return cmd;

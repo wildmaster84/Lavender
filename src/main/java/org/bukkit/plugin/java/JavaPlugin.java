@@ -30,7 +30,12 @@ public abstract class JavaPlugin implements Plugin, CommandExecutor, TabComplete
     private ClassLoader classLoader;
     private File file;
 
-    protected JavaPlugin() {}
+    protected JavaPlugin() {
+        ClassLoader cl = getClass().getClassLoader();
+        if (cl instanceof me.wildmaster84.lavender.plugin.PluginClassLoader pluginCl) {
+            pluginCl.initialize(this);
+        }
+    }
 
     public static JavaPlugin getPlugin(Class<? extends JavaPlugin> clazz) {
         JavaPlugin plugin = PLUGIN_INSTANCES.get(clazz);
