@@ -967,22 +967,8 @@ public enum Material implements Keyed {
 	COMMAND_BLOCK_MINECART,
 	GOD_APPLE;
 
-	private static transient int isBlockDebugCount = 0;
 	public boolean isBlock() {
-		try {
-			boolean result = net.minestom.server.instance.block.Block.fromKey("minecraft:" + name().toLowerCase(java.util.Locale.ROOT)) != null;
-			if (isBlockDebugCount < 20) {
-				isBlockDebugCount++;
-				System.out.println("[Lavender-Debug] Material.isBlock(" + name() + ") = " + result);
-			}
-			return result;
-		} catch (Exception e) {
-			if (isBlockDebugCount < 20) {
-				isBlockDebugCount++;
-				System.out.println("[Lavender-Debug] Material.isBlock(" + name() + ") threw: " + e.getClass().getName() + ": " + e.getMessage());
-			}
-			return false;
-		}
+		return net.minestom.server.instance.block.Block.fromKey("minecraft:" + name().toLowerCase(java.util.Locale.ROOT)) != null;
 	}
 	public boolean isItem() { return true; }
 	public boolean isAir() { return this == AIR; }

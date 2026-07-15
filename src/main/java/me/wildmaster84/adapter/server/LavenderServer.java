@@ -246,7 +246,7 @@ public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implement
     @Override public String getServerName() { return "Lavender"; }
     @Override public String getMotd() { return lavender.getProperties().getMotd(); }
     @Override public int getMaxPlayers() { return lavender.getProperties().getMaxPlayers(); }
-    @Override public String getVersion() { return "Lavender " + MinecraftServer.VERSION_NAME + " (MC: 26.1)"; }
+    @Override public String getVersion() { return "Lavender " + MinecraftServer.VERSION_NAME + " (MC: 1.26.1)"; }
     @Override public String getBukkitVersion() { return MinecraftServer.VERSION_NAME; }
 
     @Override public boolean isPrimaryThread() { return Thread.currentThread().getName().contains("main"); }
