@@ -60,7 +60,13 @@ public class LavenderBlock implements org.bukkit.block.Block {
         try {
             Block msBlock = Block.fromKey(key);
             if (msBlock != null) {
-                instance.setBlock(x, y, z, msBlock);
+                int cx = x >> 4;
+                int cz = z >> 4;
+                net.minestom.server.instance.Chunk chunk = instance.getChunk(cx, cz);
+                if (chunk != null) {
+                    chunk.setBlock(x, y, z, msBlock);
+                    net.minecraft.world.level.chunk.DirtyChunkTracker.markDirty(instance, cx, cz);
+                }
             }
         } catch (Exception e) {}
     }

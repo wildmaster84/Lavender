@@ -1,6 +1,7 @@
 package net.minecraft.server.level;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -111,8 +112,28 @@ public class ServerLevel extends Level implements WorldGenLevel {
 
     public boolean setBlock(BlockPos pos, BlockState state, int flags) {
         if (minestomInstance == null) return false;
-        minestomInstance.setBlock(pos.getX(), pos.getY(), pos.getZ(), state.getMinestomBlock());
+        int cx = pos.getX() >> 4;
+        int cz = pos.getZ() >> 4;
+        net.minestom.server.instance.Chunk chunk = minestomInstance.getChunk(cx, cz);
+        if (chunk != null) {
+            chunk.setBlock(pos.getX(), pos.getY(), pos.getZ(), state.getMinestomBlock());
+            net.minecraft.world.level.chunk.DirtyChunkTracker.markDirty(minestomInstance, cx, cz);
+        }
         return true;
+    }
+
+    public void flushDirtyChunks() {
+        if (minestomInstance == null) return;
+        Set<Long> dirty = net.minecraft.world.level.chunk.DirtyChunkTracker.drain(minestomInstance);
+        if (dirty.isEmpty()) return;
+        for (Long key : dirty) {
+            int cx = (int) (key >> 32);
+            int cz = (int) (key & 0xFFFFFFFFL);
+            net.minestom.server.instance.Chunk chunk = minestomInstance.getChunk(cx, cz);
+            if (chunk != null) {
+                chunk.sendPacketToViewers(chunk.getFullDataPacket());
+            }
+        }
     }
 
     public BlockEntity getBlockEntity(BlockPos pos) {

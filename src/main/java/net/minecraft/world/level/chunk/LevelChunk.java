@@ -12,6 +12,7 @@ public class LevelChunk extends ChunkAccess {
     private final net.minestom.server.instance.Instance instance;
     private final int chunkX;
     private final int chunkZ;
+    private net.minestom.server.instance.Chunk msChunk;
 
     public LevelChunk() {
         this.instance = null;
@@ -25,24 +26,36 @@ public class LevelChunk extends ChunkAccess {
         this.chunkZ = chunkZ;
     }
 
+    private net.minestom.server.instance.Chunk getMsChunk() {
+        if (msChunk == null && instance != null) {
+            msChunk = instance.getChunk(chunkX, chunkZ);
+        }
+        return msChunk;
+    }
+
     @Override
     public BlockState getBlockState(BlockPos pos) {
         if (instance == null) return new BlockState();
-        net.minestom.server.instance.block.Block msBlock = instance.getBlock(pos.getX(), pos.getY(), pos.getZ());
+        net.minestom.server.instance.Chunk chunk = getMsChunk();
+        if (chunk == null) return new BlockState();
+        net.minestom.server.instance.block.Block msBlock = chunk.getBlock(pos.getX(), pos.getY(), pos.getZ());
         if (msBlock == null) msBlock = net.minestom.server.instance.block.Block.AIR;
         return new BlockState(Block.of(msBlock.defaultState()), msBlock);
     }
 
     public BlockState setBlockState(BlockPos pos, BlockState state, int flags) {
         if (instance == null) return new BlockState();
-        net.minestom.server.instance.block.Block oldBlock = instance.getBlock(pos.getX(), pos.getY(), pos.getZ());
+        net.minestom.server.instance.Chunk chunk = getMsChunk();
+        if (chunk == null) return new BlockState();
+        net.minestom.server.instance.block.Block oldBlock = chunk.getBlock(pos.getX(), pos.getY(), pos.getZ());
         BlockState oldState;
         if (oldBlock == null) {
             oldState = new BlockState();
         } else {
             oldState = new BlockState(Block.of(oldBlock.defaultState()), oldBlock);
         }
-        instance.setBlock(pos.getX(), pos.getY(), pos.getZ(), state.getMinestomBlock());
+        chunk.setBlock(pos.getX(), pos.getY(), pos.getZ(), state.getMinestomBlock());
+        DirtyChunkTracker.markDirty(instance, chunkX, chunkZ);
         return oldState;
     }
 
