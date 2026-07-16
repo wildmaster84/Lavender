@@ -19,7 +19,7 @@ import net.minestom.server.network.packet.server.play.ParticlePacket;
 import net.minestom.server.particle.Particle;
 import net.minestom.server.command.CommandManager;
 
-public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84.adapter.server.entity.CraftPlayer, org.bukkit.craftbukkit.entity.CraftPlayer {
+public class LavenderPlayer extends org.bukkit.craftbukkit.entity.CraftPlayer implements org.bukkit.entity.Player, me.wildmaster84.adapter.server.entity.CraftPlayer {
 
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(Lavender.BRAND_NAME);
     private static final java.util.Map<UUID, LavenderPlayer> cache = new java.util.concurrent.ConcurrentHashMap<>();
@@ -161,6 +161,11 @@ public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84
             return true;
         }
         return false;
+    }
+    
+    @Override
+    public boolean teleport(org.bukkit.Location location, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause) {
+        return teleport(location);
     }
 
     @Override
@@ -623,6 +628,13 @@ public class LavenderPlayer implements org.bukkit.entity.Player, me.wildmaster84
     @Override public boolean addPotionEffect(org.bukkit.potion.PotionEffect effect, boolean force) { return false; }
     @Override public boolean removePotionEffect(org.bukkit.potion.PotionEffectType effect) { return false; }
     @Override public boolean hasPotionEffect(org.bukkit.potion.PotionEffectType type) { return false; }
+    @Override public boolean addPotionEffects(java.util.Collection<org.bukkit.potion.PotionEffect> effects) {
+    	for (org.bukkit.potion.PotionEffect effect : effects) {
+    		if (hasPotionEffect(effect.getType())) continue;
+    		if (!addPotionEffect(effect)) return false;
+    	}
+    	return true;
+    }
 
     @Override public void setFreezeTicks(int ticks) {}
     @Override public int getFreezeTicks() { return 0; }

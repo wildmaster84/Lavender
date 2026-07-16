@@ -93,6 +93,7 @@ public class PluginDescriptionFile {
     public String getName() { return name; }
     public String getMain() { return main; }
     public String getVersion() { return version; }
+    public String getFullName() { return name + " v" + version; }
     public String getAPIVersion() { return apiVersion; }
     public List<String> getAuthors() { return authors; }
     public String getDescription() { return description; }

@@ -5,7 +5,7 @@ import net.minestom.server.coordinate.Pos;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.coordinate.Vec;
 
-public class LavenderEntity implements org.bukkit.entity.Entity, org.bukkit.craftbukkit.entity.CraftEntity {
+public class LavenderEntity extends org.bukkit.craftbukkit.entity.CraftEntity implements org.bukkit.entity.Entity {
 
     private final Entity entity;
     private final LavenderServer server;
@@ -170,6 +170,8 @@ public class LavenderEntity implements org.bukkit.entity.Entity, org.bukkit.craf
     public boolean teleport(org.bukkit.Location location) { return false; }
     @Override
     public boolean teleport(org.bukkit.entity.Entity destination) { return false; }
+    @Override
+    public boolean teleport(org.bukkit.Location location, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause teleportCause) { return false;}
 
     @Override
     public boolean eject() {

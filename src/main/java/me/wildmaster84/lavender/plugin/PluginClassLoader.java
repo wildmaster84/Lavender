@@ -2,14 +2,13 @@ package me.wildmaster84.lavender.plugin;
 
 import java.io.File;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.List;
 
 import org.bukkit.Server;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class PluginClassLoader extends URLClassLoader {
+public class PluginClassLoader extends org.bukkit.plugin.java.PluginClassLoader {
     private final List<PluginClassLoader> dependencyLoaders;
     private final Server server;
     private final PluginDescriptionFile description;
@@ -35,7 +34,9 @@ public class PluginClassLoader extends URLClassLoader {
         javaPlugin.init(server, description, dataFolder, this, jarFile);
     }
 
-    public JavaPlugin getPlugin() { return plugin; }
+    @Override
+    public org.bukkit.plugin.Plugin getPlugin() { return plugin; }
+
     public PluginDescriptionFile getDescription() { return description; }
 
     @Override

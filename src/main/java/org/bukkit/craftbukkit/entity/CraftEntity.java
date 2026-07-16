@@ -1,7 +1,5 @@
 package org.bukkit.craftbukkit.entity;
 
-import net.minecraft.world.entity.Entity;
-
-public interface CraftEntity extends org.bukkit.entity.Entity {
-    Entity getHandle();
+public class CraftEntity {
+    public Object getHandle() { return null; }
 }

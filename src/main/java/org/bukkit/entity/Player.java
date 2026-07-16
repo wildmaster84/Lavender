@@ -5,6 +5,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.potion.PotionEffect;
+
 import java.util.UUID;
 
 public interface Player extends HumanEntity, org.bukkit.OfflinePlayer, org.bukkit.command.CommandSender, org.bukkit.permissions.Permissible, org.bukkit.configuration.serialization.ConfigurationSerializable {
@@ -170,6 +172,7 @@ public interface Player extends HumanEntity, org.bukkit.OfflinePlayer, org.bukki
     boolean addPotionEffect(org.bukkit.potion.PotionEffect effect);
     boolean removePotionEffect(org.bukkit.potion.PotionEffectType effect);
     boolean hasPotionEffect(org.bukkit.potion.PotionEffectType type);
+    boolean addPotionEffects(java.util.Collection<org.bukkit.potion.PotionEffect> effects);
 
     boolean eject();
 

@@ -88,6 +88,10 @@ public enum ChatColor {
         return color != null && !isFormat(color);
     }
 
+    public boolean isColor() {
+        return !isFormat(this);
+    }
+
     public static boolean isFormat(ChatColor color) {
         return color == MAGIC || color == BOLD || color == STRIKETHROUGH
             || color == UNDERLINE || color == ITALIC;

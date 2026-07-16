@@ -21,6 +21,7 @@ public class ServerPlayer extends Player {
 
     public ServerPlayer(net.minestom.server.entity.Player minestomPlayer) {
         super(minestomPlayer);
+        this.connection = new ServerGamePacketListenerImpl(minestomPlayer);
     }
 
     public ServerLevel level() {

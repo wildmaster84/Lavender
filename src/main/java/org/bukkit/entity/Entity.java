@@ -2,6 +2,7 @@ package org.bukkit.entity;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 import java.util.UUID;
 
@@ -49,6 +50,7 @@ public interface Entity {
     void setTicksLived(int value);
     void sendMessage(String message);
     void sendMessage(String[] messages);
+    boolean teleport(Location location, PlayerTeleportEvent.TeleportCause teleportCause);
     boolean isOp();
     void setOp(boolean value);
     void setMetadata(String metadataKey, org.bukkit.metadata.MetadataValue metadataValue);

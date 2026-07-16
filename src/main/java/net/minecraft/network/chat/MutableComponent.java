@@ -3,12 +3,12 @@ package net.minecraft.network.chat;
 public class MutableComponent implements Component {
     private final net.kyori.adventure.text.Component adventure;
 
-    public MutableComponent(net.kyori.adventure.text.Component adventure) {
-        this.adventure = adventure;
+    public MutableComponent(String text) {
+        this.adventure = net.kyori.adventure.text.Component.text(text);
     }
 
-    public net.kyori.adventure.text.Component adventure() {
-        return adventure;
+    public MutableComponent(net.kyori.adventure.text.Component component) {
+        this.adventure = component == null ? net.kyori.adventure.text.Component.empty() : component;
     }
 
     @Override
@@ -17,7 +17,8 @@ public class MutableComponent implements Component {
     }
 
     @Override
-    public String getContents() {
-        return getString();
-    }
+    public String getContents() { return getString(); }
+
+    @Override
+    public net.kyori.adventure.text.Component getAdventureComponent() { return adventure; }
 }

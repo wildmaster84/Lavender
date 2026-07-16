@@ -31,7 +31,6 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
     private final Server server;
     private final File pluginsDir;
     private final File librariesDir;
-    private final Map<String, Plugin> plugins = new LinkedHashMap<>();
     private final List<EventListenerEntry> registeredListeners = new CopyOnWriteArrayList<>();
     private final Map<Class<? extends Event>, List<EventListenerEntry>> eventIndex = new ConcurrentHashMap<>();
     private volatile boolean indexDirty = true;
@@ -139,18 +138,17 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
 
     @Override
     public Plugin getPlugin(String name) {
-        return plugins.get(name.toLowerCase());
+        return lookupNames.get(name.toLowerCase());
     }
 
     @Override
     public Plugin[] getPlugins() {
-        return plugins.values().toArray(new Plugin[0]);
+        return plugins.toArray(new Plugin[0]);
     }
 
     @Override
     public boolean isPluginEnabled(String name) {
-        Plugin p = getPlugin(name);
-        return p != null && p.isEnabled();
+        return lookupNames.containsKey(name) && lookupNames.get(name).isEnabled();
     }
 
     @Override
@@ -207,7 +205,8 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
             try {
                 Plugin plugin = loadPlugin(jar, desc);
                 if (plugin != null) {
-                    plugins.put(name, plugin);
+                	plugins.add(plugin);
+                	lookupNames.put(name, plugin);
                 }
             } catch (Throwable e) {
                 logger.error("Failed to load plugin from " + jar.getName() + ": " + e.getMessage());
@@ -216,7 +215,7 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         }
 
         for (String name : loadOrder) {
-            Plugin plugin = plugins.get(name);
+            Plugin plugin = lookupNames.get(name);
             if (plugin == null) continue;
             enablePlugin(plugin);
         }
@@ -232,7 +231,7 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         StringBuilder sb = new StringBuilder();
         sb.append("Plugins (").append(plugins.size()).append("): ");
         boolean first = true;
-        for (Plugin p : plugins.values()) {
+        for (Plugin p : plugins) {
             if (!first) sb.append(", ");
             first = false;
             sb.append(p.isEnabled() ? green : red).append(p.getName()).append(reset);
@@ -256,7 +255,7 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
             List<String> hardDeps = desc.getDepend();
             if (hardDeps != null) {
                 logger.warn("Skipping plugin " + desc.getName() + ": missing dependency(s) " +
-                    hardDeps.stream().filter(d -> !plugins.containsKey(d.toLowerCase()) && !descs.containsKey(d.toLowerCase()))
+                    hardDeps.stream().filter(d -> !lookupNames.containsKey(d.toLowerCase()) && !descs.containsKey(d.toLowerCase()))
                     .collect(java.util.stream.Collectors.joining(", ")));
             }
         }
@@ -357,9 +356,12 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         }
 
         JavaPlugin plugin = (JavaPlugin) mainClass.getDeclaredConstructor().newInstance();
+        classLoader.initialize(plugin);
 
         try {
             plugin.onLoad();
+            plugin.init(server, desc, new File(pluginsDir, desc.getName()), classLoader, jarFile);
+            
         } catch (Throwable t) {
             logger.error("Error in onLoad() for plugin " + desc.getName() + ": " + t.getMessage(), t);
             ((JavaPlugin) plugin).setEnabled(false);
@@ -572,7 +574,7 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
     }
 
     public void disableAll() {
-        for (Plugin plugin : new ArrayList<>(plugins.values())) {
+        for (Plugin plugin : plugins) {
             try {
                 disablePlugin(plugin);
             } catch (Throwable e) {

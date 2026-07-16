@@ -7,6 +7,7 @@ import org.bukkit.command.ConsoleCommandSender;
 
 import java.util.Collection;
 import java.util.UUID;
+import java.io.File;
 import org.slf4j.Logger;
 
 public final class Bukkit {
@@ -119,5 +120,9 @@ public final class Bukkit {
 
     public static org.bukkit.block.data.BlockData createBlockData(org.bukkit.Material material, String extra) {
         return server.createBlockData(material, extra);
+    }
+
+    public static File getUpdateFolderFile() {
+        return new File("plugins", "update");
     }
 }

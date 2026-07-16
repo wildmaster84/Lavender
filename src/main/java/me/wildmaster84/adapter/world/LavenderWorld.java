@@ -7,6 +7,7 @@ import net.minestom.server.instance.block.Block;
 import net.minestom.server.registry.RegistryData;
 import org.bukkit.Difficulty;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldBorder;
 import org.bukkit.entity.Player;
@@ -326,25 +327,41 @@ public class LavenderWorld extends org.bukkit.craftbukkit.CraftWorld {
     }
 
     @Override
-    public int getHighestBlockAt(int x, int z) {
-        if (!instance.isChunkLoaded(x >> 4, z >> 4)) return -64;
-        for (int y = getMaxHeight() - 1; y >= -64; y--) {
+    public int getHighestBlockYAt(int x, int z) {
+        if (!instance.isChunkLoaded(x >> 4, z >> 4)) {
+        	instance.loadChunk(x >> 4, z >> 4);
+        };
+        for (int y = getMaxHeight() - 1; y >= 64; y--) {
             Block block = instance.getBlock(x, y, z);
             if (block != null && !block.isAir() && !block.isLiquid()) {
                 return y;
             }
         }
-        return -64;
+        return 64;
     }
 
     @Override
-    public int getHighestBlockAt(Location location) {
+    public int getHighestBlockYAt(Location location) {
+        return getHighestBlockYAt(location.getBlockX(), location.getBlockZ());
+    }
+
+    @Override
+    public org.bukkit.block.Block getHighestBlockAt(int x, int z) {
+        if (!instance.isChunkLoaded(x >> 4, z >> 4)) {
+        	instance.loadChunk(x >> 4, z >> 4);
+        }
+        for (int y = getMaxHeight() - 1; y >= 64; y--) {
+            Block block = instance.getBlock(x, y, z);
+            if (block != null && !block.isAir() && !block.isLiquid()) {
+                return getBlockAt(x, y, z);
+            }
+        }
+        return getBlockAt(x, 64, z);
+    }
+
+    @Override
+    public org.bukkit.block.Block getHighestBlockAt(Location location) {
         return getHighestBlockAt(location.getBlockX(), location.getBlockZ());
-    }
-
-    @Override
-    public org.bukkit.block.Block getHighestBlockAt(int x, int z, org.bukkit.block.Biome biome) {
-        return getBlockAt(x, getHighestBlockAt(x, z), z);
     }
 
     @Override

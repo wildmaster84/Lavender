@@ -11,4 +11,5 @@ public interface Plugin {
     java.util.logging.Logger getLogger();
     java.io.File getDataFolder();
     java.io.InputStream getResource(String filename);
+    void saveResource(String filename, boolean replace);
 }

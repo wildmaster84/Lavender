@@ -52,9 +52,10 @@ public interface World extends org.bukkit.generator.WorldInfo {
     boolean unloadChunk(int x, int z);
     boolean unloadChunk(org.bukkit.Chunk chunk);
 
-    int getHighestBlockAt(int x, int z);
-    int getHighestBlockAt(Location location);
-    org.bukkit.block.Block getHighestBlockAt(int x, int z, org.bukkit.block.Biome biome);
+    int getHighestBlockYAt(int x, int z);
+    int getHighestBlockYAt(Location location);
+    org.bukkit.block.Block getHighestBlockAt(int x, int z);
+    org.bukkit.block.Block getHighestBlockAt(Location location);
 
     org.bukkit.boss.DragonBattle getEnderDragonBattle();
 

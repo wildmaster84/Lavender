@@ -14,6 +14,8 @@ import java.util.*;
 public class SimplePluginManager implements PluginManager {
     public final CommandMap commandMap = new SimpleCommandMap();
     protected final Map<String, Permission> permissions = new HashMap<>();
+    protected List<Plugin> plugins = new ArrayList<>();
+    protected final Map<String, Plugin> lookupNames = new HashMap<>();
 
     @Override
     public void registerEvents(Listener listener, Plugin plugin) {}
@@ -37,7 +39,7 @@ public class SimplePluginManager implements PluginManager {
     public void loadPlugins() {}
 
     @Override
-    public Plugin[] getPlugins() { return new Plugin[0]; }
+    public Plugin[] getPlugins() { return plugins.toArray(new Plugin[0]); }
 
     @Override
     public boolean isPluginEnabled(String name) { return false; }

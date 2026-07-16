@@ -7,6 +7,7 @@ public class Command {
     private String label;
     private String description;
     private String usage;
+    protected String usageMessage;
     private List<String> aliases;
     private String permission;
     private String permissionMessage;
@@ -24,8 +25,8 @@ public class Command {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
     public Command description(String description) { this.description = description; return this; }
-    public String getUsage() { return usage; }
-    public void setUsage(String usage) { this.usage = usage; }
+    public String getUsage() { return usageMessage != null ? usageMessage : usage; }
+    public void setUsage(String usage) { this.usage = usage; this.usageMessage = usage; }
     public Command usage(String usage) { this.usage = usage; return this; }
     public List<String> getAliases() { return aliases; }
     public Command setAliases(List<String> aliases) { this.aliases = aliases; return this; }
