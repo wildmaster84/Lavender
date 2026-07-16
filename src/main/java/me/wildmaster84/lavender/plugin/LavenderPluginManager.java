@@ -44,6 +44,16 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         "org.xerial:sqlite-jdbc:3.46.1.3",
         "org.apache.logging.log4j:log4j-api:2.24.3",
         "org.apache.logging.log4j:log4j-to-slf4j:2.24.3",
+        "io.netty:netty-transport:4.1.108.Final",
+        "io.netty:netty-common:4.1.108.Final",
+        "io.netty:netty-buffer:4.1.108.Final"
+    };
+    
+    private static final String[] REPOSITORIES = {
+        "https://repo.maven.apache.org/maven2/",
+        "https://repo1.maven.org/maven2/",
+        "https://maven.google.com/",
+        "https://jitpack.io/"
     };
 
     public LavenderPluginManager(Server server, File pluginsDir) {
@@ -105,16 +115,23 @@ public class LavenderPluginManager extends org.bukkit.plugin.SimplePluginManager
         File cached = new File(librariesDir, fileName);
         if (cached.exists()) return cached;
 
-        String url = String.format("https://repo.maven.apache.org/maven2/%s/%s/%s/%s",
-            group, artifact, version, fileName);
-        try (java.io.InputStream in = new java.net.URL(url).openStream()) {
-            java.nio.file.Files.copy(in, cached.toPath());
-            logger.info("Downloaded library: " + coordinates);
-            return cached;
-        } catch (Exception e) {
-            logger.warn("Failed to download library " + coordinates + ": " + e.getMessage());
-            return null;
+        String path = String.format("%s/%s/%s/%s", group, artifact, version, fileName);
+
+        for (String repoBase : REPOSITORIES) {
+            String url = repoBase + path;
+            try (java.io.InputStream in = new java.net.URL(url).openStream()) {
+                java.nio.file.Files.copy(in, cached.toPath());
+                logger.info("Downloaded library: " + coordinates + " (from " + repoBase + ")");
+                return cached;
+            } catch (java.io.FileNotFoundException e) {
+                // not on this repo, try the next one
+            } catch (Exception e) {
+                logger.warn("Failed to download " + coordinates + " from " + repoBase + ": " + e.getMessage());
+            }
         }
+
+        logger.warn("Failed to download library " + coordinates + ": not found in any configured repository");
+        return null;
     }
 
     private java.net.URL[] resolvePluginLibraries(PluginDescriptionFile desc) {

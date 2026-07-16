@@ -292,7 +292,7 @@ public class LavenderServer extends org.bukkit.craftbukkit.CraftServer implement
     @Override public org.bukkit.inventory.ItemFactory getItemFactory() { return new SimpleItemFactory(); }
 
     @Override public org.bukkit.plugin.ServicesManager getServicesManager() { return servicesManager; }
-    @Override public org.bukkit.UnsafeValues getUnsafe() { return new org.bukkit.UnsafeValues() { @Override public int getDataVersion() { return Lavender.DATA_VERSION; } }; }
+    @Override public org.bukkit.UnsafeValues getUnsafe() { return new org.bukkit.UnsafeValues() { @Override public int getDataVersion() { return Lavender.DATA_VERSION; } @Override public int getProtocolVersion() { return Lavender.PROTOCOL_VERSION; } }; }
     @Override public org.bukkit.plugin.messaging.Messenger getMessenger() { return messenger; }
 
     @Override

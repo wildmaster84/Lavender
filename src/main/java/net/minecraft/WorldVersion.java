@@ -1,7 +1,9 @@
 package net.minecraft;
 
-import net.minecraft.world.level.storage.DataVersion;
+public class WorldVersion {
+    public static final WorldVersion INSTANCE = new WorldVersion();
 
-public interface WorldVersion {
-    DataVersion dataVersion();
+    public int getProtocolVersion() {
+        return me.wildmaster84.adapter.Lavender.PROTOCOL_VERSION;
+    }
 }
